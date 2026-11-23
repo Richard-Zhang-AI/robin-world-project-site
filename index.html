@@ -1,0 +1,949 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Robin-World — Unifying 3D Spatial Reasoning and World Simulation</title>
+<meta name="description" content="Robin-World unifies camera perception, 3D geometry, spatial reasoning, and controllable world simulation in one multimodal spatial foundation model.">
+<link rel="icon" href="static/img/logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,500&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="static/css/style.css?v=23">
+</head>
+<body>
+
+<!-- ============ navigation (4 capabilities highlighted) ============ -->
+<nav class="topnav" id="topnav">
+  <a class="brand" href="#top"><img src="static/img/logo.png" alt="Robin-World"><span>Robin-World</span></a>
+  <div class="links">
+    <a href="#overview">Overview</a>
+    <a href="#architecture">Architecture</a>
+    <a href="#training">Training</a>
+    <a class="nav-p1" href="#camera"><span class="nav-dot"></span>1 · Camera</a>
+    <a class="nav-p2" href="#geometry"><span class="nav-dot"></span>2 · 3D Geometry</a>
+    <a class="nav-p3" href="#reasoning"><span class="nav-dot"></span>3 · Spatial QA</a>
+    <a class="nav-p4" href="#world"><span class="nav-dot"></span>4 · World Sim</a>
+    <a href="#benchmarks">Benchmarks</a>
+  </div>
+</nav>
+
+<!-- ============ hero ============ -->
+<header class="hero" id="top">
+  <div class="mosaic" aria-hidden="true" id="mosaic"></div>
+  <div class="inner">
+    <span class="badge"><span class="dot"></span>Unified Spatial Foundation Model · 4 Spatial Capabilities</span>
+    <h1><img src="static/img/logo.png" alt=""><span>Robin-<span class="grad">World</span></span></h1>
+    <p class="subtitle">Unifying 3D Spatial Reasoning and World Simulation</p>
+    <p class="authors">Anonymous CVPR 2027 Submission</p>
+
+    <!-- Highlighted 4-Pillar Quick-Jump Buttons -->
+    <div class="pillar-btns">
+      <a class="pbtn p1" href="#camera">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>1 · Camera Perception
+      </a>
+      <a class="pbtn p2" href="#geometry">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>2 · 3D Geometry
+      </a>
+      <a class="pbtn p3" href="#reasoning">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>3 · Spatial Reasoning
+      </a>
+      <a class="pbtn p4" href="#world">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>4 · World Simulation
+      </a>
+    </div>
+
+    <div class="buttons">
+      <a class="btn" href="#world">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="6 4 20 12 6 20 6 4"/></svg>Interactive Explorer
+      </a>
+      <a class="btn" href="#architecture">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="8.5" y="14" width="7" height="7" rx="1"/><path d="M6.5 10v2h11v-2M12 12v2"/></svg>Interactive Architecture
+      </a>
+      <a class="btn" href="#benchmarks">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 15l4-4 4 3 5-6"/></svg>Benchmarks
+      </a>
+    </div>
+    <p class="tldr"><b>Robin-World</b> unifies camera perception, dense 3D geometry, spatial reasoning, and controllable world simulation in one shared model via <b>Chain of Geometric Thought (CoGT)</b> and decoupled space-time queries.</p>
+    <a class="scrollcue" href="#overview"><span></span>Explore four spatial pillars</a>
+  </div>
+</header>
+
+<!-- ============ overview ============ -->
+<section class="block" id="overview">
+  <div class="wrap">
+    <div class="eyebrow">One Model · Four Spatial Pillars</div>
+    <h2 class="title">Shared geometry connects understanding and simulation</h2>
+
+    <div class="stats" style="margin-top:18px">
+      <div class="card stat reveal">
+        <span class="tag cam">1 · Camera Perception</span>
+        <div class="num"><span class="countup" data-target="31" data-dec="0">31</span> / 36 <small>#1</small></div>
+        <div class="lbl">MegaDepth 12/12 #1 (0.24° / 0.81° / 1.57°); −41.9% closed-loop feedback error.</div>
+      </div>
+      <div class="card stat reveal">
+        <span class="tag geo">2 · 3D Geometry</span>
+        <div class="num"><span class="countup" data-target="0.992" data-dec="3">0.992</span> <small>&delta;₁ · <span class="countup" data-target="12.3" data-dec="1">12.3</span>°</small></div>
+        <div class="lbl">NYUv2 depth &delta;₁ #1, all 3 normal metrics #1, plus lifted 3D point maps (Relᴾ 0.0340).</div>
+      </div>
+      <div class="card stat reveal">
+        <span class="tag qa">3 · Spatial Reasoning</span>
+        <div class="num"><span class="countup" data-target="87.4" data-dec="1">87.4</span> / <span class="countup" data-target="76.5" data-dec="1">76.5</span><small>%</small></div>
+        <div class="lbl">Rank #1 on CV-Bench (87.4%), VSI-Bench (76.50%), MMSI (37.2%), and BLINK (50.08%).</div>
+      </div>
+      <div class="card stat reveal">
+        <span class="tag sim">4 · World Simulation</span>
+        <div class="num"><span class="countup" data-target="79.0" data-dec="1">79.0</span> <small>Qual · <span class="countup" data-target="7.98" data-dec="2">7.98</span> WMB</small></div>
+        <div class="lbl">WBench Qual. #1, WorldModelBench #1 (7.98), +7.74 dB jumps &amp; 0.934 bullet-time.</div>
+      </div>
+    </div>
+
+    <div class="teaser-exp card reveal" id="teaser-explorer">
+      <div class="teaser-bar">
+        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+          <span class="teaser-ours-pill">OURS</span>
+          <span class="teaser-bar-ttl">One model, four capabilities</span>
+          <span class="teaser-bar-sub">Hover any branch on the left to activate its path &amp; live visualization on the right</span>
+        </div>
+        <div class="chips" style="margin:0">
+          <span class="auto-pill" id="teaser-auto-pill"><span class="adot"></span>Auto-Cycling</span>
+        </div>
+      </div>
+
+      <div class="teaser-split">
+        <div class="teaser-flow-wrap" id="teaser-flow-wrap">
+          <svg class="teaser-wires-svg" id="teaser-wires-svg" aria-hidden="true"></svg>
+
+          <div class="teaser-col-in" id="teaser-inputs">
+            <div class="t-mod" data-mod="image">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="8.5" cy="9.5" r="1.5"/><path d="M21 15l-5-5L5 20"/></svg>
+              <span>Image</span>
+            </div>
+            <div class="t-mod" data-mod="video">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="5" width="15" height="14" rx="2"/><path d="M17 10l5-3v10l-5-3z"/></svg>
+              <span>Video</span>
+            </div>
+            <div class="t-mod" data-mod="lang">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+              <span>Text</span>
+            </div>
+            <div class="t-mod" data-mod="cam">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+              <span>Cam</span>
+            </div>
+            <div class="t-mod" data-mod="time">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+              <span>Time</span>
+            </div>
+          </div>
+
+          <div class="teaser-core" id="teaser-core">
+            <div class="t-core-title">Robin-World</div>
+            <div class="t-core-grid">
+              <div class="t-lane" data-core="und">
+                <span class="t-lane-lbl und">Und.</span>
+                <div class="t-tokens">
+                  <span class="t-tok" data-tok="img">RGB</span>
+                  <span class="t-tok" data-tok="txt">Txt</span>
+                  <span class="t-arr">→</span>
+                  <span class="t-tok out-cam" data-tok="c"><i>c</i></span>
+                  <span class="t-tok out-qa" data-tok="q">?</span>
+                  <span class="t-tok out-qa" data-tok="a">A</span>
+                </div>
+              </div>
+              <div class="t-cogt-bridge" data-core="cogt">
+                <span>⇄ CoGT</span>
+              </div>
+              <div class="t-lane" data-core="gen">
+                <span class="t-lane-lbl gen">Gen.</span>
+                <div class="t-tokens">
+                  <span class="t-tok" data-tok="grid">Grid</span>
+                  <span class="t-tok" data-tok="pts">Pts</span>
+                  <span class="t-arr">→</span>
+                  <span class="t-tok out-geo" data-tok="F"><i>F</i></span>
+                  <span class="t-tok out-geo" data-tok="rho">&rho;</span>
+                  <span class="t-tok out-geo" data-tok="N"><i>N</i></span>
+                  <span class="t-tok out-sim" data-tok="It"><i>I<sub>t</sub></i></span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="teaser-col-out" id="teaser-branches">
+            <button class="t-branch b-cam active" data-branch="cam">
+              <span class="t-b-ico">1</span>
+              <span class="t-b-txt"><b>Camera Perception</b><small>roll · pitch · vFoV</small></span>
+            </button>
+            <button class="t-branch b-geo" data-branch="geo">
+              <span class="t-b-ico">2</span>
+              <span class="t-b-txt"><b>3D Geometry</b><small>depth · normals · pts</small></span>
+            </button>
+            <button class="t-branch b-qa" data-branch="qa">
+              <span class="t-b-ico">3</span>
+              <span class="t-b-txt"><b>Spatial Reasoning</b><small>3D-grounded QA</small></span>
+            </button>
+            <button class="t-branch b-sim" data-branch="sim">
+              <span class="t-b-ico">4</span>
+              <span class="t-b-txt"><b>World Simulation</b><small>camera &amp; time query</small></span>
+            </button>
+          </div>
+        </div>
+
+        <div class="teaser-stage" id="teaser-stage">
+          <div class="teaser-stage-head">
+            <div style="display:flex;align-items:center;gap:8px;min-width:0">
+              <span class="t-vis-dot" id="teaser-stage-dot"></span>
+              <strong id="teaser-stage-title">Camera Perception</strong>
+              <span class="teaser-stage-metric" id="teaser-stage-metric">31/36 #1</span>
+            </div>
+            <a class="teaser-jump" id="teaser-jump" href="#camera">Inspect Pillar ↓</a>
+          </div>
+          <div class="teaser-stage-imgwrap">
+            <img id="teaser-stage-img" src="static/img/teaser_vis/cam_light.png" alt="Active pillar qualitative visualization">
+          </div>
+          <div class="teaser-foot-txt" id="teaser-foot-txt">
+            <b>Camera Perception (31/36 #1):</b> Estimates camera <i>roll, pitch, vFoV</i> alongside dense perspective fields <i>F</i> with closed-loop residual feedback (−41.9% error).
+          </div>
+        </div>
+      </div>
+
+      <div class="teaser-defs" aria-label="Symbol definitions">
+        <span class="tdef-lbl">Symbols</span>
+        <span class="tdef-item"><code>RGB</code> observed frame</span>
+        <span class="tdef-item"><code>Txt</code> text / prompt</span>
+        <span class="tdef-item"><code><i>c</i></code> camera (roll, pitch, vFoV)</span>
+        <span class="tdef-item"><code>?</code> / <code>A</code> spatial query &amp; answer</span>
+        <span class="tdef-item"><code>Grid</code> 16&times;16 patch grid</span>
+        <span class="tdef-item"><code>Pts</code> lifted 3D point cloud</span>
+        <span class="tdef-item"><code><i>F</i></code> perspective field</span>
+        <span class="tdef-item"><code>&rho;</code> inverse depth</span>
+        <span class="tdef-item"><code><i>N</i></code> surface normals</span>
+        <span class="tdef-item"><code><i>I<sub>t</sub></i></code> generated novel view</span>
+        <span class="tdef-item"><code>⇄ CoGT</code> Chain of Geometric Thought feedback</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ EponaX-style Animated Remotion Architecture Explorer (2048x820 exact coords) ============ -->
+<section class="block tint" id="architecture">
+  <div class="wrap">
+    <div class="eyebrow">Animated Model Architecture</div>
+    <h2 class="title">How geometry, language, and generation reinforce each other</h2>
+    <p class="lead">Hover any module on the diagram—or click one of the four capability buttons below—to highlight its active components and flowing signal paths.</p>
+
+    <div class="pipeline-explorer reveal">
+      <div class="pipeline-stage-bar">
+        <span style="font:600 12px/1 var(--mono);letter-spacing:.7px;color:var(--ink-faint);text-transform:uppercase">Interactive Architecture · Hover Modules or Select Capability</span>
+        <div class="chips" style="margin:0">
+          <button class="chip on" id="arch-all-btn" data-route="all">All Signal Flows</button>
+          <button class="chip" id="arch-play-btn">Pause Pulse</button>
+        </div>
+      </div>
+
+      <figure class="pipeline-figure">
+        <div class="pipeline-board" id="arch-board">
+          <img class="pipeline-original" src="static/img/method_light.png" alt="Robin-World unified architecture diagram">
+
+          <svg class="pipeline-overlay" id="arch-overlay" viewBox="0 0 2048 820" preserveAspectRatio="none">
+            <defs>
+              <mask id="arch-spotlight-mask">
+                <rect x="0" y="0" width="2048" height="820" fill="white"/>
+                <g id="arch-cutouts"></g>
+              </mask>
+              <marker id="flow-arr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5.2" markerHeight="5.2" orient="auto">
+                <path d="M 0 1.2 L 8.8 5 L 0 8.8 z" fill="context-stroke"/>
+              </marker>
+            </defs>
+
+            <!-- Spotlight dim layer (cleanly dims background & inactive boxes) -->
+            <rect class="pipeline-scrim" x="0" y="0" width="2048" height="820" mask="url(#arch-spotlight-mask)"/>
+
+            <!-- Animated flowing dashed arrows rendered cleanly on top when focused -->
+            <g id="arch-active-arrows"></g>
+
+            <!-- Exact Remotion wire paths for default ambient pulse mode -->
+            <g id="arch-flows">
+              <!-- Text/Caption -> Tokenizer -> Context T -->
+              <g class="flow-pulse flow-qa" data-id="w-in-text" data-routes="qa,sim" style="animation-delay:0s">
+                <path class="flow-halo" d="M 256 126 H 268 V 306 H 352 M 369 321 V 369 M 418 392 H 452" pathLength="1"/>
+                <path class="flow-ink"  d="M 256 126 H 268 V 306 H 352 M 369 321 V 369 M 418 392 H 452" pathLength="1"/>
+              </g>
+              <!-- Input Photo -> Vision Encoder -> Context T -->
+              <g class="flow-pulse flow-geo" data-id="w-img-vis" data-routes="cam,geo,qa,sim" style="animation-delay:.14s">
+                <path class="flow-halo" d="M 572 340 V 369 M 512 392 H 494" pathLength="1"/>
+                <path class="flow-ink"  d="M 572 340 V 369 M 512 392 H 494" pathLength="1"/>
+              </g>
+              <!-- Input Photo -> DINO -->
+              <g class="flow-pulse flow-qa" data-id="w-img-dino" data-routes="qa" style="animation-delay:.22s">
+                <path class="flow-halo" d="M 648 340 V 369" pathLength="1"/>
+                <path class="flow-ink"  d="M 648 340 V 369" pathLength="1"/>
+              </g>
+              <!-- Input Photo -> VAE -->
+              <g class="flow-pulse flow-sim" data-id="w-img-vae" data-routes="geo,sim" style="animation-delay:.22s">
+                <path class="flow-halo" d="M 610 340 V 432" pathLength="1"/>
+                <path class="flow-ink"  d="M 610 340 V 432" pathLength="1"/>
+              </g>
+              <!-- Camera Path + Queries -> RoPE -> DiT -->
+              <g class="flow-pulse flow-sim" data-id="w-in-rope" data-routes="sim" style="animation-delay:.18s">
+                <path class="flow-halo" d="M 256 410 H 268 V 711 H 292 M 242 590 H 268 M 242 746 H 268 V 711 M 376 711 H 407" pathLength="1"/>
+                <path class="flow-ink"  d="M 256 410 H 268 V 711 H 292 M 242 590 H 268 M 242 746 H 268 V 711 M 376 711 H 407" pathLength="1"/>
+              </g>
+              <!-- Encoding T -> Understanding -->
+              <g class="flow-pulse flow-qa" data-id="w-enc-vlm" data-routes="cam,geo,qa,sim" style="animation-delay:.35s">
+                <path class="flow-halo" d="M 473 338 V 184" pathLength="1"/>
+                <path class="flow-ink"  d="M 473 338 V 184" pathLength="1"/>
+              </g>
+              <!-- Understanding: VLM -> State S0 -->
+              <g class="flow-pulse flow-qa" data-id="w-vlm-s0" data-routes="cam,geo,qa,sim" style="animation-delay:.45s">
+                <path class="flow-halo" d="M 631 113 H 654" pathLength="1"/>
+                <path class="flow-ink"  d="M 631 113 H 654" pathLength="1"/>
+              </g>
+              <!-- Understanding: State S0 -> Track -->
+              <g class="flow-pulse flow-qa" data-id="w-s0-trk" data-routes="cam,qa" style="animation-delay:.52s">
+                <path class="flow-halo" d="M 768 113 H 795" pathLength="1"/>
+                <path class="flow-ink"  d="M 768 113 H 795" pathLength="1"/>
+              </g>
+              <!-- Encoding T -> DiT -->
+              <g class="flow-pulse flow-geo" data-id="w-ctx-dit" data-routes="cam,geo,qa,sim" style="animation-delay:.48s">
+                <path class="flow-halo" d="M 473 446 V 602" pathLength="1"/>
+                <path class="flow-ink"  d="M 473 446 V 602" pathLength="1"/>
+              </g>
+              <!-- Encoding VAE -> DiT -->
+              <g class="flow-pulse flow-sim" data-id="w-vae-dit" data-routes="geo,sim" style="animation-delay:.54s">
+                <path class="flow-halo" d="M 610 472 V 602" pathLength="1"/>
+                <path class="flow-ink"  d="M 610 472 V 602" pathLength="1"/>
+              </g>
+              <!-- DINO -> CoGT Fusion -->
+              <g class="flow-pulse flow-qa" data-id="w-dino-fusion" data-routes="qa" style="animation-delay:.62s">
+                <path class="flow-halo" d="M 706 392 H 787" pathLength="1"/>
+                <path class="flow-ink"  d="M 706 392 H 787" pathLength="1"/>
+              </g>
+              <!-- DiT -> RGB Head -> RGB Output -->
+              <g class="flow-pulse flow-sim" data-id="w-dit-rgb" data-routes="sim" style="animation-delay:.85s">
+                <path class="flow-halo" d="M 819 687 H 834 V 596 H 856 M 922 596 H 955" pathLength="1"/>
+                <path class="flow-ink"  d="M 819 687 H 834 V 596 H 856 M 922 596 H 955" pathLength="1"/>
+              </g>
+              <!-- DiT -> Geo Head -> Geo Outputs -->
+              <g class="flow-pulse flow-geo" data-id="w-dit-geo" data-routes="cam,geo,qa" style="animation-delay:.85s">
+                <path class="flow-halo" d="M 819 687 H 834 V 723 H 856 M 922 723 H 955" pathLength="1"/>
+                <path class="flow-ink"  d="M 819 687 H 834 V 723 H 856 M 922 723 H 955" pathLength="1"/>
+              </g>
+              <!-- Geo Outputs -> CoGT Sketchpad (Geometry Loop) -->
+              <g class="flow-pulse flow-loop" data-id="w-geo-sketch" data-routes="cam,qa" style="animation-delay:1.25s">
+                <path class="flow-halo" d="M 1124 543 V 512 H 1041 V 494" pathLength="1"/>
+                <path class="flow-ink"  d="M 1124 543 V 512 H 1041 V 494" pathLength="1"/>
+              </g>
+              <!-- Sketchpad -> Fusion (inside CoGT) -->
+              <g class="flow-pulse flow-qa" data-id="w-sketch-fusion" data-routes="qa" style="animation-delay:1.45s">
+                <path class="flow-halo" d="M 942 392 H 867 M 856 381 V 357" pathLength="1"/>
+                <path class="flow-ink"  d="M 942 392 H 867 M 856 381 V 357" pathLength="1"/>
+              </g>
+              <!-- Sketchpad -> Camera Fit (inside CoGT) -->
+              <g class="flow-pulse flow-cam" data-id="w-sketch-fit" data-routes="cam" style="animation-delay:1.45s">
+                <path class="flow-halo" d="M 1140 392 H 1153" pathLength="1"/>
+                <path class="flow-ink"  d="M 1140 392 H 1153" pathLength="1"/>
+              </g>
+              <!-- Geo Outputs -> 3D Geometry Panel -->
+              <g class="flow-pulse flow-geo" data-id="w-geo-3d" data-routes="geo" style="animation-delay:1.25s">
+                <path class="flow-halo" d="M 1124 543 V 512 H 1320 V 443 H 1330" pathLength="1"/>
+                <path class="flow-ink"  d="M 1124 543 V 512 H 1320 V 443 H 1330" pathLength="1"/>
+              </g>
+              <!-- CoGT Fusion -> Understanding (H grounded tokens) -->
+              <g class="flow-pulse flow-qa" data-id="w-fusion-vlm" data-routes="qa" style="animation-delay:1.65s">
+                <path class="flow-halo" d="M 856 234 V 147" pathLength="1"/>
+                <path class="flow-ink"  d="M 856 234 V 147" pathLength="1"/>
+              </g>
+              <!-- CoGT Camera Fit -> Understanding (c_hat token) -->
+              <g class="flow-pulse flow-cam" data-id="w-fit-vlm" data-routes="cam" style="animation-delay:1.65s">
+                <path class="flow-halo" d="M 1220 234 V 137" pathLength="1"/>
+                <path class="flow-ink"  d="M 1220 234 V 137" pathLength="1"/>
+              </g>
+              <!-- Understanding -> Camera Perception -->
+              <g class="flow-pulse flow-cam" data-id="w-vlm-cam" data-routes="cam" style="animation-delay:1.95s">
+                <path class="flow-halo" d="M 1304 113 H 1320 V 96 H 1330" pathLength="1"/>
+                <path class="flow-ink"  d="M 1304 113 H 1320 V 96 H 1330" pathLength="1"/>
+              </g>
+              <!-- Understanding -> Spatial Reasoning -->
+              <g class="flow-pulse flow-qa" data-id="w-vlm-qa" data-routes="qa" style="animation-delay:1.95s">
+                <path class="flow-halo" d="M 1304 113 H 1320 V 261 H 1330" pathLength="1"/>
+                <path class="flow-ink"  d="M 1304 113 H 1320 V 261 H 1330" pathLength="1"/>
+              </g>
+              <!-- RGB Output -> World Simulation -->
+              <g class="flow-pulse flow-sim" data-id="w-rgb-sim" data-routes="sim" style="animation-delay:1.35s">
+                <path class="flow-halo" d="M 1181 673 H 1202" pathLength="1"/>
+                <path class="flow-ink"  d="M 1181 673 H 1202" pathLength="1"/>
+              </g>
+            </g>
+
+            <!-- Exact module border traces -->
+            <g id="arch-glints"></g>
+          </svg>
+
+          <!-- Exact Remotion Hotspots -->
+          <div class="pipeline-hotspots" id="arch-hotspots"></div>
+        </div>
+      </figure>
+
+      <div class="module-choices" id="arch-choices">
+        <button data-route="cam"><span class="nav-dot" style="background:var(--p1);margin:0"></span>1 · Camera Perception</button>
+        <button data-route="geo"><span class="nav-dot" style="background:var(--p2);margin:0"></span>2 · 3D Geometry</button>
+        <button data-route="qa"><span class="nav-dot" style="background:var(--p3);margin:0"></span>3 · Spatial Reasoning</button>
+        <button data-route="sim"><span class="nav-dot" style="background:var(--p4);margin:0"></span>4 · World Simulation</button>
+      </div>
+
+      <div class="arch-inspector" id="arch-inspector">
+        <div>
+          <div class="ttl" id="insp-title">Unified Spatial Architecture — Hover or Select Any Capability</div>
+          <p class="desc" id="insp-desc">Qwen3-VL encodes context and feeds layer-50 states into SolarWM-H3 DiT, whose RGB and geometry heads (F, ρ, N) loop back via CoGT.</p>
+        </div>
+        <div class="meta" id="insp-meta">Qwen3-VL ↔ SolarWM-H3 DiT ↔ CoGT</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ dedicated high-contrast interactive 6-stage training curriculum ============ -->
+<section class="block" id="training">
+  <div class="wrap">
+    <div class="eyebrow">Training Curriculum &amp; Data</div>
+    <h2 class="title">Six-stage training across 18 datasets (132.0M samples &amp; frames)</h2>
+    <p class="lead">Hover any stage to trace dependencies and filter its datasets (zero-shot NYUv2 excluded).</p>
+
+    <div class="train-shell reveal">
+      <div class="train-flow-wrap">
+        <!-- Animated SVG connectors behind the 6 stage cards -->
+        <svg class="train-wires-svg" viewBox="0 0 1120 340" preserveAspectRatio="none" aria-hidden="true">
+          <!-- Stage 1 -> 2, 2 -> 3 -->
+          <path class="t-wire" data-stages="1,2" d="M 340 76 H 386"/>
+          <path class="t-wire" data-stages="2,3" d="M 734 76 H 780"/>
+          <!-- Stage 3 -> 4 (wrap down) -->
+          <path class="t-wire" data-stages="3,4" d="M 950 148 V 168 H 170 V 188"/>
+          <!-- Stage 4 -> 5, 5 -> 6 -->
+          <path class="t-wire" data-stages="4,5" d="M 340 256 H 386"/>
+          <path class="t-wire" data-stages="5,6" d="M 734 256 H 780"/>
+          <!-- Stage 4 -> 6 CoGT feedback loop -->
+          <path class="t-wire dash" data-stages="4,6" d="M 170 326 V 336 H 950 V 326"/>
+        </svg>
+
+        <div class="train-grid-v2" id="train-grid"></div>
+      </div>
+
+      <div class="train-corpus-head">
+        <span>18 Training Datasets · 132.0M Total Samples &amp; Frames</span>
+        <span id="train-stage-badge">Hover or click any stage to isolate its corpus</span>
+      </div>
+      <div class="corpus-grid" id="corpus-grid"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ Pillar 1: camera perception & feedback ============ -->
+<section class="block tint" id="camera">
+  <div class="wrap">
+    <div class="eyebrow p1">Pillar 1 · Camera Perception &amp; Closed-Loop Control</div>
+    <h2 class="title">Camera Perception</h2>
+    <p class="lead">Direct camera estimation paired with dense perspective fields <i>F</i> achieves <b>31/36 #1</b> across MegaDepth, TartanAir &amp; LaMAR, while closed-loop pose readback cuts control error by <b>41.9%</b>.</p>
+
+    <div class="grid2 reveal">
+      <div class="card pad">
+        <h3>Single-View Perspective Fields &amp; Horizon Fit</h3>
+        <div class="paper-frame" style="margin-top:10px">
+          <img src="static/img/pillars/teaser_cam_light.png" alt="Single-view perspective field, latitude, and up-vector predictions">
+        </div>
+      </div>
+
+      <div class="card pad">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap">
+          <h3 style="margin:0">Closed-Loop Target Pose Feedback (&eta; = 0.85)</h3>
+          <span class="auto-pill" id="fb-auto-pill"><span class="adot"></span>Auto-Cycling</span>
+        </div>
+        <div class="chips" id="fb-chips" style="margin-top:10px"></div>
+        <div class="cmp" id="fb-cmp">
+          <img id="fb-iter1" src="static/img/feedback/fb_r0_iter1.jpg" alt="Iter 1 open-loop">
+          <div class="top"><img id="fb-iter2" src="static/img/feedback/fb_r0_iter2.jpg" alt="Iter 2 feedback"></div>
+          <div class="bar"></div>
+          <div class="knob">↔</div>
+          <span class="lab l">Iter 1 · Open-Loop</span>
+          <span class="lab r">Iter 2 · Feedback (η=0.85)</span>
+          <span class="hint">Drag to compare</span>
+        </div>
+        <div class="grid2" style="margin-top:10px">
+          <figure><img class="figimg" id="fb-input" src="" alt="Input anchor"><figcaption style="margin-top:4px;font-size:12px"><b>Input Anchor</b></figcaption></figure>
+          <figure><img class="figimg" id="fb-target" src="" alt="Target pose guide"><figcaption style="margin-top:4px;font-size:12px"><b>Target Pose Guide</b></figcaption></figure>
+        </div>
+        <p class="small muted" id="fb-note" style="margin:8px 0 0"></p>
+      </div>
+    </div>
+
+    <div class="cam-metrics-row reveal" style="margin-top:20px">
+      <div class="card pad">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:10px">
+          <h3 style="margin:0">Camera Calibration Radar · MegaDepth, TartanAir &amp; LaMAR</h3>
+          <span class="small muted"><b>31 of 36 #1</b> (0.24° / 0.81° / 1.57°)</span>
+        </div>
+        <div class="fig-fill">
+          <img class="figimg" src="static/img/camera_radar_light.png" alt="MegaDepth, TartanAir, LaMAR camera perception radar charts">
+        </div>
+      </div>
+
+      <div class="card cogt-mini-card">
+        <div style="display:flex;justify-content:space-between;align-items:baseline;gap:6px;margin-bottom:4px">
+          <h3 style="margin:0;font-size:15.5px">CoGT Refinement</h3>
+          <span class="small muted" style="font-family:var(--mono);font-size:10.5px">Mean@1</span>
+        </div>
+        <div class="vbars" data-vbars data-min="45" data-max="63">
+          <div class="vcol">
+            <div class="vval">49.20%</div>
+            <div class="vtrack"><div class="vfill base" data-v="49.20"></div></div>
+            <div class="vlbl">Field-fit<br>only</div>
+          </div>
+          <div class="vcol">
+            <div class="vval">56.15%</div>
+            <div class="vtrack"><div class="vfill base" data-v="56.15"></div></div>
+            <div class="vlbl">Naive<br>fusion</div>
+          </div>
+          <div class="vcol">
+            <div class="vval">58.07%</div>
+            <div class="vtrack"><div class="vfill ours" data-v="58.07"></div></div>
+            <div class="vlbl">Direct<br>(Und.)</div>
+          </div>
+          <div class="vcol">
+            <div class="vval delta">60.65%</div>
+            <div class="vtrack"><div class="vfill green" data-v="60.65"></div></div>
+            <div class="vlbl"><b>CoGT</b><br><span style="color:var(--ours)">+2.58</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ Pillar 2: 3D geometry ============ -->
+<section class="block" id="geometry">
+  <div class="wrap">
+    <div class="eyebrow p2">Pillar 2 · Dense 3D Geometry &amp; Uncalibrated Point Clouds</div>
+    <h2 class="title">3D Geometry</h2>
+    <p class="lead">Jointly predicts hole-free <i>(F, &rho;, N)</i> maps and lifts intrinsic-free 3D point clouds (NYUv2 <b>0.992 &delta;₁</b>, <b>12.3°</b> normals, <b>Relᴾ 0.0340</b>).</p>
+
+    <div class="grid2 geo-split reveal">
+      <div class="card pad" id="geo-card">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:8px">
+          <h3 style="margin:0;white-space:nowrap">Dense Map Showcase</h3>
+          <span class="auto-pill" id="geo-auto-pill" style="white-space:nowrap"><span class="adot"></span>Auto-Cycling</span>
+        </div>
+        <div class="chiprow" style="margin-top:8px">
+          <span class="lbl">Scene</span>
+          <div class="chips" id="geo-scene-chips"></div>
+        </div>
+        <div class="chiprow">
+          <span class="lbl">Map</span>
+          <div class="chips" id="geo-mod-chips">
+            <button class="chip" data-mod="field">Field <i>F</i></button>
+            <button class="chip on" data-mod="depth">Depth <i>&rho;</i></button>
+            <button class="chip" data-mod="normals">Normals <i>N</i></button>
+          </div>
+          <div class="chips" id="geo-left-chips" style="margin-left:auto">
+            <button class="chip on" data-left="rgb">RGB</button>
+            <button class="chip" data-left="ref">Ref / Sensor</button>
+          </div>
+        </div>
+        <div class="cmp" id="geo-cmp">
+          <img id="geo-left-img" src="static/img/dense/dense_0_0.jpg" alt="Input or reference">
+          <div class="top"><img id="geo-right-img" src="static/img/dense/dense_0_4.jpg" alt="Robin-World prediction"></div>
+          <div class="bar"></div>
+          <div class="knob">↔</div>
+          <span class="lab l" id="geo-left-lab">Input RGB</span>
+          <span class="lab r" id="geo-right-lab">Robin-World · Inverse Depth ρ</span>
+          <span class="hint">Drag to compare</span>
+        </div>
+        <p class="small muted" id="geo-note" style="margin:10px 0 0"></p>
+      </div>
+
+      <div class="card pad" id="pc3d-card">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap">
+          <h3 style="margin:0;white-space:nowrap">Interactive 3D Point Clouds</h3>
+          <span class="auto-pill" id="pc3d-hint"><span class="adot"></span>Drag · Scroll · Right-Pan</span>
+        </div>
+        <div class="chiprow" style="margin-top:8px">
+          <span class="lbl">Color</span>
+          <div class="chips" id="pc3d-color-chips">
+            <button class="chip on" data-pc-color="rgb">RGB</button>
+            <button class="chip" data-pc-color="normals">Normals <i>N</i></button>
+            <button class="chip" data-pc-color="depth">Depth <i>&rho;</i></button>
+          </div>
+          <div class="chips" style="margin-left:auto">
+            <button class="chip on" id="pc3d-frustum-btn">Frustum</button>
+            <button class="chip on" id="pc3d-orbit-btn">Auto-Orbit</button>
+            <button class="chip" id="pc3d-reset-btn">Reset</button>
+          </div>
+        </div>
+        <div class="pc3d-stage" id="pc3d-stage">
+          <canvas id="pc3d-canvas"></canvas>
+          <span class="pc3d-badge tl" id="pc3d-scene-badge">Loading 3D cloud…</span>
+          <div class="pc3d-size-pill">
+            <span>Pts</span>
+            <input id="pc3d-size" type="range" min="22" max="76" value="44" aria-label="Point size">
+          </div>
+          <span class="pc3d-badge br">Three.js · Uncalibrated 3D Lift</span>
+        </div>
+        <p class="small muted" style="margin:10px 0 0">Synced with the active scene on the left—drag to orbit 360&deg;, scroll to zoom, or toggle <i>RGB / Normals / Depth</i> coloring directly on the lifted 3D points.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ Pillar 3: spatial reasoning ============ -->
+<section class="block tint" id="reasoning">
+  <div class="wrap">
+    <div class="eyebrow p3">Pillar 3 · Geometry-Grounded Spatial Reasoning</div>
+    <h2 class="title">Spatial Reasoning</h2>
+    <p class="lead">Spatial-Grounded Fusion feeds generated <i>(F, &rho;, N)</i> sketchpads back into Qwen3-VL, leading <b>CV-Bench (87.4%)</b>, <b>VSI-Bench (76.50%)</b>, <b>MMSI-Bench (37.2%)</b>, and <b>BLINK (50.08%)</b>.</p>
+
+    <div class="card pad reveal" id="sr-card" style="margin-bottom:22px">
+      <div style="display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:12px;margin-bottom:12px">
+        <div style="display:flex;align-items:center;gap:10px">
+          <h3 style="margin:0">Qualitative Spatial QA Gallery (16 Cases)</h3>
+          <span class="auto-pill" id="sr-auto-pill"><span class="adot"></span>Auto-Cycling</span>
+        </div>
+        <div class="chips" id="sr-chips" style="margin:0">
+          <button class="chip on" data-sr="cvbench">CV-Bench (87.4%)</button>
+          <button class="chip" data-sr="blink">BLINK (50.08%)</button>
+          <button class="chip" data-sr="mmsi">MMSI-Bench (37.2%)</button>
+          <button class="chip" data-sr="vsi">VSI-Bench 32f (76.50%)</button>
+        </div>
+      </div>
+      <div id="sr-gallery" class="sr-gallery" aria-live="polite"></div>
+      <figcaption id="sr-cap"><b>CV-Bench (86.2% → 87.4%):</b> Self-generated (<i>F</i>, <i>&rho;</i>, <i>N</i>) sketchpads resolve 2D/3D relative depth and metric distance.</figcaption>
+    </div>
+
+    <div class="grid2 reveal">
+      <div class="card pad">
+        <h3>CoGT Evidence &amp; Channel Ablation (VSI-Bench %)</h3>
+        <div class="bars" data-bars data-min="66" data-max="78" style="margin-top:14px">
+          <div class="barrow">
+            <div class="name"><b>VLM Only Baseline</b><span>68.40%</span></div>
+            <div class="track"><div class="fill base" data-v="68.40">68.40</div></div>
+          </div>
+          <div class="barrow">
+            <div class="name"><b>Maps as Image Inputs (naive)</b><span>71.85%</span></div>
+            <div class="track"><div class="fill base" data-v="71.85">71.85</div></div>
+          </div>
+          <div class="barrow">
+            <div class="name"><b>DINOv3 Only (Direct)</b><span>73.85%</span></div>
+            <div class="track"><div class="fill ours" data-v="73.85">73.85</div></div>
+          </div>
+          <div class="barrow">
+            <div class="name"><b>w/o Inverse Depth &rho;</b><span>74.30%</span></div>
+            <div class="track"><div class="fill ours" data-v="74.30">74.30</div></div>
+          </div>
+          <div class="barrow">
+            <div class="name"><b>w/o SGF Gating &pi;</b><span>74.50%</span></div>
+            <div class="track"><div class="fill ours" data-v="74.50">74.50</div></div>
+          </div>
+          <div class="barrow">
+            <div class="name"><b>Generated Maps Only (F, &rho;, N)</b><span>75.45%</span></div>
+            <div class="track"><div class="fill ours" data-v="75.45">75.45</div></div>
+          </div>
+          <div class="barrow">
+            <div class="name"><b>Full CoGT (DINOv3 + F, &rho;, N + SGF)</b><span class="delta">+8.10%</span></div>
+            <div class="track"><div class="fill green" data-v="76.50">76.50</div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card pad">
+        <h3>CV-Bench vs. VSI-Bench vs. MMSI-Bench</h3>
+        <div class="fig-fill" style="margin-top:10px">
+          <img class="figimg" src="static/img/reasoning_cmp_light.png" alt="Spatial reasoning Pareto comparison">
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ Pillar 4: world simulation ============ -->
+<section class="block dark" id="world">
+  <div class="wrap">
+    <div class="eyebrow p4">Pillar 4 · Interactive World Simulation</div>
+    <h2 class="title">World Simulation</h2>
+    <p class="lead">Select a rollout below to watch 24 fps 6-DoF navigation synced with its ground-truth camera trajectory.</p>
+
+    <div class="chips" id="exp-chips"></div>
+
+    <div class="explorer-grid reveal">
+      <div class="explorer-vid-box">
+        <video id="exp-vid" controls muted playsinline preload="metadata"></video>
+        <div class="explorer-overlay">
+          <span class="pill-tag" id="exp-title">Loading…</span>
+          <span class="pill-tag accent" id="exp-mode-badge">6-DoF Rollout</span>
+        </div>
+      </div>
+
+      <div class="traj-panel">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <strong style="font-size:14.5px;color:var(--ink)">GT Camera Trajectory (XZ Plane)</strong>
+          <span class="small" style="color:var(--ink-faint);font-family:var(--mono)">24 fps · Click turn to seek</span>
+        </div>
+        <div class="traj-canvas-wrap">
+          <canvas id="traj-canvas"></canvas>
+        </div>
+        <div>
+          <div style="font:600 11px/1 var(--sans);text-transform:uppercase;letter-spacing:.8px;color:var(--ink-faint);margin-bottom:7px">Action Sequence</div>
+          <div class="turn-track" id="exp-turns"></div>
+        </div>
+        <p class="small" id="exp-prompt" style="margin:0;color:var(--ink-soft);line-height:1.5;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden"></p>
+      </div>
+    </div>
+
+    <!-- 16 World Rollouts Grid (directly inside Pillar 4) -->
+    <div style="margin-top:26px" class="reveal">
+      <div style="display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:12px;margin-bottom:14px">
+        <div>
+          <span class="pill-tag accent" style="margin-bottom:4px;display:inline-block">NATIVE 24 FPS ROLLOUTS</span>
+          <h3 style="margin:2px 0 0">Interactive World Rollout Gallery (16 Scenes)</h3>
+        </div>
+        <div class="chips" id="gal-filters" style="margin:0">
+          <button class="chip on" data-filter="all">All (16)</button>
+          <button class="chip" data-filter="first_person">First-Person</button>
+          <button class="chip" data-filter="third_person">Third-Person</button>
+          <button class="chip" data-filter="stylized">Stylized &amp; Sci-Fi</button>
+        </div>
+      </div>
+      <div class="gal" id="gal-grid"></div>
+    </div>
+
+    <!-- 4C: Discrete Viewpoint Jumps + Fixed-Time Bullet-Time -->
+    <div class="grid2 reveal" style="margin-top:26px">
+      <div class="card pad">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:8px">
+          <span class="pill-tag">JEPA PREDICTIVE STATE Z</span>
+          <span class="auto-pill" id="disc-auto-pill"><span class="adot"></span>Jump-Frame Cycling</span>
+        </div>
+        <h3>Discrete Space Jumps (8 Cases)</h3>
+        <div class="chips" id="disc-chips" style="margin-top:10px"></div>
+        <div class="chips" id="disc-qchips" style="display:none;margin:-4px 0 10px"></div>
+        <div class="grid2" style="gap:10px">
+          <figure class="jump-card">
+            <img class="figimg" id="disc-input" src="static/img/world/traj_c1_0.jpg" alt="Anchor">
+            <span class="j-badge anc">Input Anchor <i>I</i></span>
+          </figure>
+          <figure class="jump-card ours">
+            <img class="figimg" id="disc-ours" src="static/img/world/traj_c1_3.jpg" alt="Robin-World with state Z">
+            <span class="j-badge jepa" id="disc-jump-badge">Jump Query · JEPA Z</span>
+          </figure>
+        </div>
+        <div class="grid2" style="gap:10px;margin-top:10px">
+          <figure class="jump-card ref">
+            <img class="figimg" id="disc-frozen" src="static/img/world/traj_c1_2.jpg" alt="Frozen H3">
+            <span class="j-badge muted">Frozen H3 (No Z)</span>
+          </figure>
+          <figure class="jump-card ref">
+            <img class="figimg" id="disc-target" src="static/img/world/traj_c1_1.jpg" alt="GT Target">
+            <span class="j-badge muted">Ground-Truth Target</span>
+          </figure>
+        </div>
+        <p class="small" id="disc-note" style="color:var(--ink-soft);margin:10px 0 0"></p>
+      </div>
+
+      <div class="card pad">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:8px">
+          <span class="pill-tag">3D POINT-CLOUD REPROJECTION · BULLET-TIME</span>
+          <span class="auto-pill" id="frz-auto-pill"><span class="adot"></span>158f · 30 fps</span>
+        </div>
+        <h3>Fixed-Time Point-Cloud Anchoring (<i>&tau;<sub>k</sub> = t*</i>)</h3>
+        <p class="small" style="color:var(--ink-soft);margin:4px 0 10px">Freezing dynamic scene motion at <i>t*</i> while sweeping novel 3D viewpoints (<b>20.42 dB PSNR</b>, <b>0.934</b> static consistency across 128 clips).</p>
+        <div class="chips" id="frz-chips"></div>
+        <div class="frz-vid-box">
+          <video id="frz-vid" controls muted playsinline preload="metadata" poster="static/video/bullet_time/01_bookfall_orbit.jpg" src="static/video/bullet_time/01_bookfall_orbit.mp4"></video>
+          <span class="j-badge jepa" id="frz-badge">Bookfall · Orbit (t* Frozen)</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<dialog class="modal" id="gal-modal">
+  <div class="box">
+    <video id="modal-vid" controls loop playsinline></video>
+    <div class="cap">
+      <div>
+        <strong id="modal-cap" style="font-size:15.5px"></strong>
+        <div id="modal-acts" class="small" style="color:var(--ink-faint);margin-top:4px"></div>
+      </div>
+      <button id="modal-close">Close</button>
+    </div>
+  </div>
+</dialog>
+
+<!-- ============ benchmarks (differentiated by 4 capabilities, transparent charts) ============ -->
+<section class="block" id="benchmarks">
+  <div class="wrap">
+    <div class="eyebrow">Quantitative Results · Four Spatial Capabilities</div>
+    <h2 class="title">Leading performance across all four spatial pillars</h2>
+
+    <div class="chips" id="bench-tabs" style="margin-top:16px;align-items:center">
+      <button class="chip on" data-bench="cam" style="border-color:var(--p1-bd)"><span class="nav-dot" style="background:var(--p1);margin-right:6px"></span>1 · Camera Perception</button>
+      <button class="chip" data-bench="geo" style="border-color:var(--p2-bd)"><span class="nav-dot" style="background:var(--p2);margin-right:6px"></span>2 · 3D Geometry</button>
+      <button class="chip" data-bench="qa"  style="border-color:var(--p3-bd)"><span class="nav-dot" style="background:var(--p3);margin-right:6px"></span>3 · Spatial Reasoning</button>
+      <button class="chip" data-bench="sim" style="border-color:var(--p4-bd)"><span class="nav-dot" style="background:var(--p4);margin-right:6px"></span>4 · World Simulation</button>
+      <span class="auto-pill" id="bench-auto-pill" style="margin-left:auto"><span class="adot"></span>Auto-Cycling</span>
+    </div>
+
+    <!-- Pillar 1: Camera Perception Panel -->
+    <div class="card pad reveal" data-bench-panel="cam">
+      <div class="split" style="align-items:center;margin-bottom:18px">
+        <div>
+          <h3 style="margin-bottom:6px">MegaDepth Single-View Calibration</h3>
+          <p class="small muted" style="margin:0">Leads <b>12/12</b> on MegaDepth and <b>31/36</b> across MegaDepth, TartanAir &amp; LaMAR.</p>
+        </div>
+        <img class="figimg" src="static/img/camera_radar_light.png" alt="MegaDepth, TartanAir, LaMAR radar charts">
+      </div>
+      <div class="tblwrap">
+        <table class="tbl compact">
+          <thead>
+            <tr>
+              <th>Approach</th><th>Roll↓</th><th>@1↑</th><th>@5↑</th><th>@10↑</th>
+              <th>Pitch↓</th><th>@1↑</th><th>@5↑</th><th>@10↑</th>
+              <th>vFoV↓</th><th>@1↑</th><th>@5↑</th><th>@10↑</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>UVP</td><td class="num">0.51</td><td class="num">69.20</td><td class="num">81.60</td><td class="num">86.90</td><td class="num">4.59</td><td class="num">21.60</td><td class="num">36.20</td><td class="num">47.40</td><td class="num">10.92</td><td class="num">8.20</td><td class="num">18.70</td><td class="num">29.80</td></tr>
+            <tr><td>GeoCalib</td><td class="num">0.36</td><td class="num">82.60</td><td class="num">90.60</td><td class="num">94.00</td><td class="num">1.94</td><td class="num">32.40</td><td class="num">53.30</td><td class="num">67.50</td><td class="num">5.46</td><td class="num">13.60</td><td class="num">31.70</td><td class="num">48.20</td></tr>
+            <tr><td>AnyCalib</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td class="num">3.14</td><td class="num">19.40</td><td class="num">40.80</td><td class="num">59.10</td></tr>
+            <tr><td>Puffin</td><td class="num">0.32</td><td class="num">84.90</td><td class="num">93.40</td><td class="num">96.20</td><td class="num">1.08</td><td class="num">47.60</td><td class="num">68.20</td><td class="num">79.40</td><td class="num">2.42</td><td class="num">23.90</td><td class="num">47.80</td><td class="num">64.10</td></tr>
+            <tr><td>Puffin-World</td><td class="num">0.28</td><td class="num">87.70</td><td class="num">94.20</td><td class="num">96.70</td><td class="num">1.01</td><td class="num">49.70</td><td class="num">69.30</td><td class="num">79.60</td><td class="num">2.41</td><td class="num">24.80</td><td class="num">48.80</td><td class="num">65.50</td></tr>
+            <tr><td>Robin-World (Direct)</td><td class="num">0.27</td><td class="num">87.90</td><td class="num">94.55</td><td class="num">96.95</td><td class="num">0.94</td><td class="num">52.10</td><td class="num">71.40</td><td class="num">81.20</td><td class="num">1.65</td><td class="num">34.20</td><td class="num">59.80</td><td class="num">74.45</td></tr>
+            <tr class="ours-row"><td>Robin-World (CoGT)</td><td class="best">0.24</td><td class="best">89.20</td><td class="best">95.55</td><td class="best">97.50</td><td class="best">0.81</td><td class="best">56.85</td><td class="best">74.80</td><td class="best">84.45</td><td class="best">1.57</td><td class="best">35.90</td><td class="best">61.10</td><td class="best">75.28</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Pillar 2: NYUv2 3D Geometry Panel -->
+    <div class="card pad" data-bench-panel="geo" style="display:none">
+      <h3 style="margin-bottom:10px">Zero-Shot NYUv2 3D Geometry (654 Test Images)</h3>
+      <div class="tblwrap">
+        <table class="tbl">
+          <thead>
+            <tr><th>Approach</th><th>Type</th><th>AbsRel ↓</th><th>δ₁ ↑</th><th>Relᴾ ↓</th><th>δ₁ᴾ ↑</th><th>Normal Mean ↓</th><th>11.25° ↑</th><th>30° ↑</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>MoGe-3</td><td>Specialist</td><td class="num">0.0287</td><td class="num">0.986</td><td class="best">0.0335</td><td class="best">0.985</td><td class="num">14.7°</td><td class="num">62.2</td><td class="num">85.8</td></tr>
+            <tr><td>UniK3D</td><td>Specialist</td><td class="best">0.0281</td><td class="num">0.986</td><td class="num">0.0348</td><td class="num">0.983</td><td>—</td><td>—</td><td>—</td></tr>
+            <tr><td>Metric3D v2</td><td>Specialist</td><td class="num">0.0394</td><td class="num">0.976</td><td>—</td><td>—</td><td class="num">13.3°</td><td class="num">66.4</td><td class="num">88.1</td></tr>
+            <tr><td>4M-21-XL</td><td>Unified</td><td class="num">0.0577</td><td class="num">0.964</td><td>—</td><td>—</td><td class="num">19.2°</td><td class="num">45.4</td><td class="num">82.0</td></tr>
+            <tr><td>SenseNova-Vision</td><td>Unified</td><td class="num">0.1523</td><td class="num">0.811</td><td>—</td><td>—</td><td class="num">14.3°</td><td class="num">62.9</td><td class="num">86.6</td></tr>
+            <tr class="ours-row"><td>Robin-World</td><td>Unified</td><td class="num">0.0304</td><td class="best">0.992</td><td class="num">0.0340</td><td class="num">0.984</td><td class="best">12.3°</td><td class="best">67.7</td><td class="best">90.7</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Pillar 3: Spatial Reasoning Panel -->
+    <div class="card pad" data-bench-panel="qa" style="display:none">
+      <div class="split" style="align-items:center;margin-bottom:18px">
+        <div>
+          <h3 style="margin-bottom:6px">Spatial Question Answering (4 Benchmarks)</h3>
+          <p class="small muted" style="margin:0">Rank #1 on <b>CV-Bench (87.4%)</b>, <b>VSI-Bench (76.50%)</b>, <b>MMSI-Bench (37.2%)</b>, and <b>BLINK (50.08%)</b>.</p>
+        </div>
+        <img class="figimg" src="static/img/reasoning_cmp_light.png" alt="Spatial reasoning Pareto comparison" style="max-width:420px;margin:0 auto">
+      </div>
+      <div class="tblwrap">
+        <table class="tbl">
+          <thead>
+            <tr><th>Approach</th><th>CV-Bench ↑</th><th>VSI-Bench ↑</th><th>MMSI-Bench ↑</th><th>BLINK Val ↑</th><th>BLINK Depth ↑</th><th>BLINK Loc. ↑</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Qwen3-VL-8B</td><td class="num">85.1</td><td class="num">57.7</td><td class="num">28.8</td><td>—</td><td>—</td><td>—</td></tr>
+            <tr><td>VST-7B-SFT</td><td class="num">85.5</td><td class="num">60.6</td><td class="num">32.0</td><td>—</td><td>—</td><td>—</td></tr>
+            <tr><td>Cambrian-S-7B</td><td class="num">76.9</td><td class="num">67.5</td><td class="num">25.8</td><td>—</td><td>—</td><td>—</td></tr>
+            <tr><td>GeoThinker (Qwen3-VL-8B)</td><td class="num">85.1</td><td class="num">72.6</td><td class="num">30.9</td><td>—</td><td>—</td><td>—</td></tr>
+            <tr><td>LLaVA-1.6-34B</td><td>—</td><td>—</td><td>—</td><td class="num">46.80</td><td class="num">64.52</td><td class="num">41.60</td></tr>
+            <tr><td>Robin-World (Direct)</td><td class="num">86.2</td><td class="num">73.85</td><td class="num">35.4</td><td class="num">48.08</td><td class="num">75.00</td><td class="num">61.48</td></tr>
+            <tr class="ours-row"><td>Robin-World (CoGT)</td><td class="best">87.4</td><td class="best">76.50</td><td class="best">37.2</td><td class="best">50.08</td><td class="best">82.26</td><td class="best">67.21</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Pillar 4: World Simulation Panel -->
+    <div class="card pad" data-bench-panel="sim" style="display:none">
+      <div class="split" style="align-items:center;margin-bottom:18px">
+        <div>
+          <h3 style="margin-bottom:6px">WBench (158 Cases) &amp; WorldModelBench (350 Clips)</h3>
+          <p class="small muted" style="margin:0">WBench Qual. <b>79.0 (#1)</b> · WorldModelBench <b>7.98 (#1)</b> · JEPA Z <b>+7.74 dB</b> cross-view · Bullet-time <b>0.934</b>.</p>
+        </div>
+        <img class="figimg" src="static/img/wbench_radar_light.png" alt="WBench 11-metric radar chart" style="max-width:400px;margin:0 auto">
+      </div>
+
+      <h4 style="margin:0 0 8px;font:600 13.5px/1 var(--mono);color:var(--navy)">WBench Navigation (158 Cases)</h4>
+      <div class="tblwrap" style="margin-bottom:20px">
+        <table class="tbl">
+          <thead>
+            <tr>
+              <th>Approach</th><th>Navi.↑</th><th>Geom.↑</th><th>Bg.↑</th><th>Subj.↑</th>
+              <th>Aesth.↑</th><th>Imag.↑</th><th>Flick.↑</th><th>Dyn.↑</th><th>Smooth↑</th><th>Qual.↑</th><th>Plaus.↑</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>LingBot-World</td><td class="num">79.8</td><td class="best">95.4</td><td class="best">96.9</td><td class="best">93.5</td><td class="best">66.9</td><td class="num">67.9</td><td class="num">94.1</td><td class="num">66.2</td><td class="num">96.9</td><td class="num">78.9</td><td class="best">64.8</td></tr>
+            <tr><td>HY-World 1.5</td><td class="best">87.5</td><td class="num">92.0</td><td class="num">92.7</td><td class="num">89.1</td><td class="num">60.1</td><td class="num">65.4</td><td class="num">93.5</td><td class="num">91.1</td><td class="num">98.1</td><td class="num">78.1</td><td class="num">58.6</td></tr>
+            <tr><td>FantasyWorld</td><td class="num">72.1</td><td class="num">95.3</td><td class="num">94.2</td><td class="num">92.5</td><td class="num">63.0</td><td class="num">62.8</td><td class="num">95.8</td><td class="num">49.0</td><td class="num">97.9</td><td class="num">72.4</td><td class="num">59.7</td></tr>
+            <tr><td>Happy Oyster</td><td class="num">85.1</td><td class="num">87.2</td><td class="num">91.4</td><td class="num">91.5</td><td class="num">56.6</td><td class="num">63.9</td><td class="num">94.0</td><td class="num">94.2</td><td class="num">97.0</td><td class="num">77.3</td><td class="num">57.6</td></tr>
+            <tr><td>Matrix-Game 3.0</td><td class="num">83.5</td><td class="num">87.6</td><td class="num">85.7</td><td class="num">83.0</td><td class="num">46.4</td><td class="best">70.0</td><td class="num">86.3</td><td class="best">97.5</td><td class="num">95.4</td><td class="num">75.5</td><td class="num">54.0</td></tr>
+            <tr><td>Infinite-World</td><td class="num">75.9</td><td class="num">94.3</td><td class="num">88.8</td><td class="num">88.4</td><td class="num">58.7</td><td class="num">66.1</td><td class="num">94.1</td><td class="num">82.8</td><td class="num">98.0</td><td class="num">77.0</td><td class="num">57.2</td></tr>
+            <tr class="ours-row"><td>Robin-World</td><td class="num">81.3</td><td class="num">92.1</td><td class="num">93.2</td><td class="num">91.6</td><td class="num">64.0</td><td class="num">65.6</td><td class="num">95.0</td><td class="num">81.7</td><td class="num">98.1</td><td class="best">79.0</td><td class="num">59.7</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h4 style="margin:0 0 8px;font:600 13.5px/1 var(--mono);color:var(--navy)">WorldModelBench (350 Test Clips)</h4>
+      <div class="tblwrap">
+        <table class="tbl">
+          <thead>
+            <tr><th>Approach</th><th>Instr. (0–3)</th><th>Frame</th><th>Temp.</th><th>Newton</th><th>Mass</th><th>Fluid</th><th>Penetr.</th><th>Grav.</th><th>Total (0–10)</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Mochi</td><td class="best">2.22</td><td class="num">0.63</td><td class="num">0.63</td><td class="num">0.94</td><td class="num">0.58</td><td class="num">0.97</td><td class="num">0.71</td><td class="num">0.94</td><td class="num">7.62</td></tr>
+            <tr><td>OpenSoraPlan-T2V</td><td class="num">1.79</td><td class="num">0.70</td><td class="num">0.77</td><td class="num">0.90</td><td class="num">0.66</td><td class="num">0.97</td><td class="num">0.89</td><td class="num">0.93</td><td class="num">7.61</td></tr>
+            <tr><td>CogVideoX-T2V</td><td class="num">2.11</td><td class="num">0.60</td><td class="num">0.51</td><td class="num">0.91</td><td class="num">0.52</td><td class="num">0.96</td><td class="num">0.74</td><td class="num">0.95</td><td class="num">7.31</td></tr>
+            <tr class="ours-row"><td>Robin-World</td><td class="num">1.83</td><td class="best">0.76</td><td class="best">0.82</td><td class="best">0.96</td><td class="best">0.74</td><td class="best">0.98</td><td class="best">0.92</td><td class="best">0.97</td><td class="best">7.98</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ bibtex ============ -->
+<section class="block tint" id="bibtex">
+  <div class="wrap">
+    <div class="eyebrow">Citation</div>
+    <h2 class="title">BibTeX</h2>
+    <div class="card pad">
+      <div style="display:flex;justify-content:flex-end;margin:-4px 0 10px"><button class="mini-btn" id="copy-bib">Copy</button></div>
+<pre class="bib" id="bib">@inproceedings{robinworld2027,
+  title     = {Robin-World: Unifying 3D Spatial Reasoning and World Simulation},
+  author    = {Anonymous},
+  booktitle = {Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR) Submission},
+  year      = {2027}
+}</pre>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <p><b>Robin-World Project Page.</b> All qualitative rollouts, geometric predictions, training stages, and benchmark numbers are aligned with the CVPR 2027 submission across MegaDepth, TartanAir, LaMAR, NYUv2, CV-Bench, VSI-Bench, MMSI-Bench, BLINK, WBench, and WorldModelBench.</p>
+    <p>Design layout inspired by <a href="https://oranger-l.github.io/StreamVSR/">StreamVSR</a> and <a href="https://garlicba.github.io/EponaX/">EponaX</a>.</p>
+  </div>
+</footer>
+
+<script src="static/js/vendor/three.min.js"></script>
+<script src="static/js/vendor/OrbitControls.js"></script>
+<script src="static/js/demo_data.js?v=3"></script>
+<script src="static/js/main.js?v=22"></script>
+</body>
+</html>

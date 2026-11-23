@@ -1,0 +1,20 @@
+# OS metadata
+.DS_Store
+._*
+Thumbs.db
+
+# Local editor settings and temporary files
+/.idea/
+/.vscode/
+*.swp
+*~
+
+# Unused website images
+/static/img/dense/dense_gt_2_[013].jpg
+/static/img/feedback/feedback_full.png
+/static/img/pillars/teaser_geo_light.png
+/static/img/world/freeze_[0-3]_[0-2].jpg
+/static/img/world/temporal_query_[01]_[0-2].jpg
+/static/img/world/time_[01]_[0-2].jpg
+/static/img/world/traj_case2_[0-2].jpg
+/static/img/world/xview_case2_[0-2].jpg
