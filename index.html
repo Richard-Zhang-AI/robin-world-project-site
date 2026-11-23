@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,500&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="static/css/style.css?v=24">
+<link rel="stylesheet" href="static/css/style.css?v=25">
 </head>
 <body>
 
@@ -447,10 +447,14 @@
 
     <div class="grid2 reveal">
       <div class="card pad">
-        <h3>Single-View Perspective Fields &amp; Horizon Fit</h3>
-        <div class="paper-frame" style="margin-top:10px">
-          <img src="static/img/pillars/teaser_cam_light.png" alt="Single-view perspective field, latitude, and up-vector predictions">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap">
+          <h3 style="margin:0">Single-View Perspective Fields &amp; Horizon Fit</h3>
+          <span class="auto-pill"><span class="adot"></span>Live Motion Video</span>
         </div>
+        <div class="cam-vid-box">
+          <video id="cam-pillar-vid" controls autoplay muted loop playsinline preload="metadata" poster="static/video/pillars/cam.jpg" src="static/video/pillars/cam.mp4"></video>
+        </div>
+        <p class="small muted" style="margin:10px 0 0">Synchronized appearance motion, gravity-aligned pixel up-vectors, and dynamic horizon/latitude curves predicted from single-frame observations.</p>
       </div>
 
       <div class="card pad">
@@ -917,23 +921,6 @@
   </div>
 </section>
 
-<!-- ============ bibtex ============ -->
-<section class="block tint" id="bibtex">
-  <div class="wrap">
-    <div class="eyebrow">Citation</div>
-    <h2 class="title">BibTeX</h2>
-    <div class="card pad">
-      <div style="display:flex;justify-content:flex-end;margin:-4px 0 10px"><button class="mini-btn" id="copy-bib">Copy</button></div>
-<pre class="bib" id="bib">@inproceedings{robinworld2027,
-  title     = {Robin-World: Unifying 3D Spatial Reasoning and World Simulation},
-  author    = {Anonymous},
-  booktitle = {Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR) Submission},
-  year      = {2027}
-}</pre>
-    </div>
-  </div>
-</section>
-
 <footer>
   <div class="wrap">
     <p><b>Robin-World Project Page.</b> All qualitative rollouts, geometric predictions, training stages, and benchmark numbers are aligned with the CVPR 2027 submission across MegaDepth, TartanAir, LaMAR, NYUv2, CV-Bench, VSI-Bench, MMSI-Bench, BLINK, WBench, and WorldModelBench.</p>
@@ -944,6 +931,6 @@
 <script src="static/js/vendor/three.min.js"></script>
 <script src="static/js/vendor/OrbitControls.js"></script>
 <script src="static/js/demo_data.js?v=3"></script>
-<script src="static/js/main.js?v=23"></script>
+<script src="static/js/main.js?v=24"></script>
 </body>
 </html>

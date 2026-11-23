@@ -489,37 +489,37 @@
   const TRAIN_STAGES = [
     {
       id: 1, num: "STAGE 1", title: "Camera Perception",
-      color: "#9f3e52", bg: "rgba(159,62,82,.09)", fg: "#881337", bd: "rgba(159,62,82,.28)",
+      color: "#9f3e52", bg: "rgba(159,62,82,.09)", tint: "rgba(159,62,82,.045)", fg: "#881337", bd: "rgba(159,62,82,.28)",
       modules: "Qwen3-VL Backbone (I₀ → c) · LoRA r=64", params: "615.3M params",
       datasets: ["Puffin-4M", "Puffin-Cam-15M"],
     },
     {
       id: 2, num: "STAGE 2", title: "Spatial Reasoning",
-      color: "#5b4d96", bg: "rgba(91,77,150,.09)", fg: "#4c1d95", bd: "rgba(91,77,150,.28)",
+      color: "#5b4d96", bg: "rgba(91,77,150,.09)", tint: "rgba(91,77,150,.045)", fg: "#4c1d95", bd: "rgba(91,77,150,.28)",
       modules: "VLM (r=32) + Frozen DINOv3 + Spatial Fusion", params: "45.2M SGF",
       datasets: ["VSI-590K", "CoVT", "Puffin-4M"],
     },
     {
       id: 3, num: "STAGE 3", title: "Generator Alignment",
-      color: "#2563a8", bg: "rgba(37,99,168,.09)", fg: "#1e3a8a", bd: "rgba(37,99,168,.28)",
+      color: "#2563a8", bg: "rgba(37,99,168,.09)", tint: "rgba(37,99,168,.045)", fg: "#1e3a8a", bd: "rgba(37,99,168,.28)",
       modules: "33B SolarWM-H3 DiT (Layer-50 + Cam RoPE) · r=384", params: "2.08B params",
       datasets: ["Puffin-Traj-1M", "RealEstate10K"],
     },
     {
       id: 4, num: "STAGE 4", title: "Dense 3D Geometry",
-      color: "#2b7a5e", bg: "rgba(43,122,94,.09)", fg: "#14532d", bd: "rgba(43,122,94,.28)",
+      color: "#2b7a5e", bg: "rgba(43,122,94,.09)", tint: "rgba(43,122,94,.045)", fg: "#14532d", bd: "rgba(43,122,94,.28)",
       modules: "DiT Geo Head (F, ρ, N) · r=64 + Map Emb.", params: "681.1M params",
       datasets: ["SceneNet-RGBD", "ARKitScenes", "OmniWorld-Game", "TartanAir", "TUM RGB-D", "vKITTI 2", "LaMAR", "MegaDepth"],
     },
     {
       id: 5, num: "STAGE 5", title: "World Simulation",
-      color: "#0e7490", bg: "rgba(14,116,144,.09)", fg: "#155e75", bd: "rgba(14,116,144,.28)",
+      color: "#0e7490", bg: "rgba(14,116,144,.09)", tint: "rgba(14,116,144,.045)", fg: "#155e75", bd: "rgba(14,116,144,.28)",
       modules: "V-JEPA 2.1 Predictor + State Bridges + 3D Branch", params: "92.4M + 268.6M + 2.9M",
       datasets: ["Static Orbits", "DL3DV", "ScanNet", "RealEstate10K", "OmniWorld-Game", "uCO3D"],
     },
     {
       id: 6, num: "STAGE 6", title: "CoGT Closed Loop",
-      color: "#b45309", bg: "rgba(180,83,9,.09)", fg: "#78350f", bd: "rgba(180,83,9,.28)",
+      color: "#b45309", bg: "rgba(180,83,9,.09)", tint: "rgba(180,83,9,.045)", fg: "#78350f", bd: "rgba(180,83,9,.28)",
       modules: "Map Encoder + Spatial Fusion + Field Fit Loop", params: "26.8M + 45.2M",
       datasets: ["VSI-590K", "CoVT", "Puffin-4M", "Puffin-Cam-15M"],
     },
@@ -590,6 +590,7 @@
       c.dataset.sid = st.id;
       c.style.setProperty("--st-color", st.color);
       c.style.setProperty("--st-bg", st.bg);
+      c.style.setProperty("--st-tint", st.tint);
       c.style.setProperty("--st-fg", st.fg);
       c.style.setProperty("--st-bd", st.bd);
       c.innerHTML = `
@@ -1250,42 +1251,63 @@
   const srAutoPill = document.getElementById("sr-auto-pill");
   const srChips = [...document.querySelectorAll("#sr-chips .chip")];
   let srIdx = 0;
+  let srCaseIdx = 0;
   let srPaused = false;
+  let srVisible = false;
+  let srRunId = 0;
+  let srTimers = [];
 
-  function renderSrCards(v) {
-    const cardsHtml = v.items.map((it) => {
-      const mediaHtml = it.grid
-        ? `<div class="sr-rgb"><img src="${it.grid}" alt="${it.title}"></div>`
-        : `<div class="sr-rgb"><img src="${it.rgb}" alt="${it.title}"></div>
-           <img class="sr-maps" src="${it.maps}" alt="F, rho, N geometric sketchpads">`;
-      const midHtml = it.scale
-        ? `<div class="sr-scale-box">
-             <div class="sr-scale-row"><span>${it.scale.label}</span><b>${it.scale.gt}</b></div>
-             <div class="sr-scale-track">
-               <span class="sr-dot g" style="left:${it.scale.g}%"></span>
-               <span class="sr-dot d" style="left:${it.scale.d}%"></span>
-               <span class="sr-dot c" style="left:${it.scale.c}%"></span>
-             </div>
-           </div>`
-        : (it.meta
-          ? `<div class="sr-scale-box"><div class="sr-scale-row" style="margin:0"><span>${it.meta.left}</span><b style="color:#15803d">${it.meta.right}</b></div></div>`
-          : "");
-      return `
-        <div class="sr-item">
-          <div class="sr-item-top">
-            <span class="sr-item-ttl">${it.title}</span>
-            <span class="sr-tag ${it.tagCls}">${it.tag}</span>
-          </div>
-          ${mediaHtml}
-          ${midHtml}
-          <p class="sr-q">${it.q}</p>
-          <div class="sr-ans">
-            <span class="sr-pill ${it.directCls}">${it.direct}</span>
-            <span class="sr-pill good">${it.cogt}</span>
-          </div>
-        </div>`;
-    }).join("");
-    return `
+  function clearSrTimers() {
+    srTimers.forEach((id) => clearTimeout(id));
+    srTimers = [];
+  }
+
+  function typeText(el, text, msPerChar, runId, onDone) {
+    let i = 0;
+    const step = () => {
+      if (runId !== srRunId) return;
+      i = Math.min(text.length, i + 2);
+      el.innerHTML = text.slice(0, i) + (i < text.length ? '<span class="sr-cursor"></span>' : "");
+      if (i < text.length) {
+        srTimers.push(setTimeout(step, msPerChar));
+      } else if (onDone) {
+        onDone();
+      }
+    };
+    step();
+  }
+
+  function renderSrChat(key, caseIdx) {
+    clearSrTimers();
+    const runId = ++srRunId;
+    const v = SR_VIEWS[key];
+    if (!v || !srGallery) return;
+    if (caseIdx >= v.items.length) caseIdx = 0;
+    srCaseIdx = caseIdx;
+    const it = v.items[caseIdx];
+
+    srChips.forEach((b) => b.classList.toggle("on", b.dataset.sr === key));
+    if (srCap) srCap.innerHTML = v.cap;
+
+    const caseBtns = v.items.map((item, ci) =>
+      `<button class="sr-case-btn ${ci === caseIdx ? "on" : ""}" data-ci="${ci}">Case ${ci + 1}: ${item.title}</button>`
+    ).join("");
+
+    const userImg = it.grid || it.rgb;
+    const midHtml = it.scale
+      ? `<div class="sr-scale-box" style="margin-top:8px">
+           <div class="sr-scale-row"><span>${it.scale.label}</span><b>${it.scale.gt}</b></div>
+           <div class="sr-scale-track">
+             <span class="sr-dot g" style="left:${it.scale.g}%"></span>
+             <span class="sr-dot d" style="left:${it.scale.d}%"></span>
+             <span class="sr-dot c" style="left:${it.scale.c}%"></span>
+           </div>
+         </div>`
+      : (it.meta
+        ? `<div class="sr-scale-box" style="margin-top:8px"><div class="sr-scale-row" style="margin:0"><span>${it.meta.left}</span><b style="color:#15803d">${it.meta.right}</b></div></div>`
+        : "");
+
+    srGallery.innerHTML = `
       <div class="sr-head">
         <div class="sr-head-l">
           <span class="sr-badge-bench">${v.bench}</span>
@@ -1294,36 +1316,115 @@
         </div>
         <span class="sr-head-delta">${v.delta}</span>
       </div>
-      <div class="sr-grid">${cardsHtml}</div>`;
+      <div class="sr-case-bar">
+        <span class="lbl">Dialogue Case</span>
+        ${caseBtns}
+      </div>
+      <div class="sr-chat-stage">
+        <div class="sr-bubble user">
+          <div class="sr-who"><span>USER · ${v.bench.toUpperCase()} QUERY</span><span>${it.title}</span></div>
+          <div class="sr-chat-user-row">
+            <div class="sr-chat-img"><img src="${userImg}" alt="${it.title}"></div>
+            <p class="sr-q-txt" id="sr-q-type"></p>
+          </div>
+        </div>
+        <div class="sr-typing-row" id="sr-typing" style="display:none">
+          <span>Generating CoGT Sketchpad (F, ρ, N)</span>
+          <span class="sr-typing-dot"></span><span class="sr-typing-dot"></span><span class="sr-typing-dot"></span>
+        </div>
+        <div class="sr-bubble bot" id="sr-bot-bubble" style="display:none">
+          <div class="sr-who">
+            <span>ROBIN-WORLD · COGT GROUNDED RESPONSE</span>
+            <span class="sr-tag ${it.tagCls}">${it.tag}</span>
+          </div>
+          ${it.maps ? `<img class="sr-maps" src="${it.maps}" alt="F, rho, N geometric sketchpads">` : ""}
+          ${midHtml}
+          <p class="sr-a-txt" id="sr-a-type"></p>
+          <div class="sr-ans" id="sr-ans-pills" style="display:none">
+            <span class="sr-pill ${it.directCls}">${it.direct}</span>
+            <span class="sr-pill good">${it.cogt}</span>
+          </div>
+        </div>
+      </div>`;
+
+    srGallery.querySelectorAll(".sr-case-btn").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        srPaused = true;
+        if (srAutoPill) srAutoPill.textContent = "Manual";
+        renderSrChat(key, Number(btn.dataset.ci));
+      });
+    });
+
+    const qEl = document.getElementById("sr-q-type");
+    const typingEl = document.getElementById("sr-typing");
+    const botEl = document.getElementById("sr-bot-bubble");
+    const aEl = document.getElementById("sr-a-type");
+    const pillsEl = document.getElementById("sr-ans-pills");
+
+    const botSummary = it.maps
+      ? "Conditioning Qwen3-VL on self-generated (F, ρ, N) sketchpad geometry resolves the spatial relation:"
+      : "Fusing 3D sketchpads across frames recovers metric room geometry:";
+
+    typeText(qEl, it.q, 24, runId, () => {
+      if (typingEl) typingEl.style.display = "inline-flex";
+      srTimers.push(setTimeout(() => {
+        if (runId !== srRunId) return;
+        if (typingEl) typingEl.style.display = "none";
+        if (botEl) botEl.style.display = "block";
+        typeText(aEl, botSummary, 22, runId, () => {
+          if (pillsEl) pillsEl.style.display = "flex";
+          srTimers.push(setTimeout(() => {
+            if (runId !== srRunId || srPaused || !srVisible) return;
+            if (srCaseIdx + 1 < v.items.length) {
+              renderSrChat(key, srCaseIdx + 1);
+            } else {
+              srIdx = (srIdx + 1) % SR_ORDER.length;
+              renderSrChat(SR_ORDER[srIdx], 0);
+            }
+          }, 2600));
+        });
+      }, 650));
+    });
   }
 
-  function setSr(key) {
-    srChips.forEach((b) => b.classList.toggle("on", b.dataset.sr === key));
-    const v = SR_VIEWS[key];
-    if (v && srGallery) {
-      srGallery.innerHTML = renderSrCards(v);
-      srCap.innerHTML = v.cap;
-    }
+  function setSr(key, caseIdx = 0) {
+    renderSrChat(key, caseIdx);
   }
-  if (srGallery) setSr("cvbench");
+  if (srGallery) {
+    setSr("cvbench", 0);
+    new IntersectionObserver((entries) => {
+      const was = srVisible;
+      srVisible = entries.some((e) => e.isIntersecting);
+      if (srVisible && !was && !srPaused) {
+        renderSrChat(SR_ORDER[srIdx], srCaseIdx);
+      }
+    }, { threshold: 0.2 }).observe(srGallery);
+  }
   srChips.forEach((btn, idx) => {
     btn.addEventListener("click", () => {
       srPaused = true;
-      if (srAutoPill) srAutoPill.innerHTML = 'Manual';
+      if (srAutoPill) srAutoPill.innerHTML = "Manual";
       srIdx = idx;
-      setSr(btn.dataset.sr);
+      setSr(btn.dataset.sr, 0);
     });
   });
   srCard?.addEventListener("mouseenter", () => (srPaused = true));
-  srCard?.addEventListener("mouseleave", () => (srPaused = false));
-  if (srChips.length) {
-    setInterval(() => {
-      if (!srPaused) {
-        srIdx = (srIdx + 1) % SR_ORDER.length;
-        setSr(SR_ORDER[srIdx]);
-      }
-    }, 4200);
-  }
+  srCard?.addEventListener("mouseleave", () => {
+    if (srAutoPill && srAutoPill.textContent === "Manual") return;
+    srPaused = false;
+    if (srVisible) {
+      srTimers.push(setTimeout(() => {
+        if (!srPaused && srVisible) {
+          if (srCaseIdx + 1 < SR_VIEWS[SR_ORDER[srIdx]].items.length) {
+            renderSrChat(SR_ORDER[srIdx], srCaseIdx + 1);
+          } else {
+            srIdx = (srIdx + 1) % SR_ORDER.length;
+            renderSrChat(SR_ORDER[srIdx], 0);
+          }
+        }
+      }, 1500));
+    }
+  });
 
   // ---------- 9. EponaX-inspired Interactive Trajectory & Video Explorer ----------
   const EXPLORER_IDS = ["5_memory", "50", "2", "112_memory", "38", "55", "111", "15", "80", "29"];
