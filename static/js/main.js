@@ -1890,7 +1890,7 @@
   const teaserStageDot = document.getElementById("teaser-stage-dot");
   const teaserStageTitle = document.getElementById("teaser-stage-title");
   const teaserStageMetric = document.getElementById("teaser-stage-metric");
-  const teaserStageImg = document.getElementById("teaser-stage-img");
+  const teaserStageVid = document.getElementById("teaser-stage-vid");
   const teaserStageWrap = document.querySelector(".teaser-stage-imgwrap");
   const teaserFootTxt = document.getElementById("teaser-foot-txt");
   const teaserJump = document.getElementById("teaser-jump");
@@ -1899,7 +1899,8 @@
     cam: {
       title: "Camera Perception",
       metric: "31/36 #1",
-      img: "static/img/teaser_vis/cam_light.png",
+      vid: "static/video/pillars/cam.mp4",
+      poster: "static/video/pillars/cam.jpg",
       color: "#9f3e52",
       mods: ["image", "cam"],
       lanes: ["und"],
@@ -1912,7 +1913,8 @@
     geo: {
       title: "3D Geometry",
       metric: "0.992 δ₁ · 12.3°",
-      img: "static/img/teaser_vis/geo_light.png",
+      vid: "static/video/pillars/geo.mp4",
+      poster: "static/video/pillars/geo.jpg",
       color: "#2b7a5e",
       mods: ["image", "video"],
       lanes: ["gen"],
@@ -1925,7 +1927,8 @@
     qa: {
       title: "Spatial Reasoning",
       metric: "87.4% / 76.50%",
-      img: "static/img/teaser_vis/qa_light.png",
+      vid: "static/video/pillars/qa.mp4",
+      poster: "static/video/pillars/qa.jpg",
       color: "#5b4d96",
       mods: ["image", "video", "lang"],
       lanes: ["und", "gen"],
@@ -1938,7 +1941,8 @@
     sim: {
       title: "World Simulation",
       metric: "79.0 Qual · 7.98 WMB",
-      img: "static/img/teaser_vis/sim_light.png",
+      vid: "static/video/pillars/sim.mp4",
+      poster: "static/video/pillars/sim.jpg",
       color: "#2563a8",
       mods: ["image", "video", "lang", "cam", "time"],
       lanes: ["und", "gen"],
@@ -1946,12 +1950,14 @@
       toks: ["img", "txt", "c", "grid", "pts", "F", "rho", "N", "It"],
       href: "#world",
       jump: "Inspect Pillar ↓",
-      desc: "<b>World Simulation (79.0 Qual · 7.98 WMB):</b> Decoupled camera &amp; time queries power 24 fps 6-DoF rollouts, spatial memory revisits, discrete space jumps, and bullet-time."
+      desc: "<b>World Simulation (79.0 Qual · 7.98 WMB):</b> Decoupled camera &amp; time queries power 24 fps 6-DoF rollouts, discrete space jumps, and bullet-time exploration."
     }
   };
   const TEASER_ORDER = ["cam", "geo", "qa", "sim"];
   let teaserIdx = 0;
   let teaserPaused = false;
+  let teaserManual = false;
+  let teaserVisible = false;
   let teaserActiveKey = "cam";
 
   function drawTeaserWires(activeKey) {
@@ -2046,13 +2052,17 @@
       t.classList.toggle("dim", !match);
     });
 
-    if (teaserStageImg) teaserStageImg.src = spec.img;
+    if (teaserStageVid && teaserStageVid.getAttribute("src") !== spec.vid) {
+      teaserStageVid.src = spec.vid;
+      teaserStageVid.poster = spec.poster;
+      teaserStageVid.load();
+      if (teaserVisible) teaserStageVid.play().catch(() => {});
+    }
     if (teaserStageTitle) teaserStageTitle.textContent = spec.title;
     if (teaserStageMetric) teaserStageMetric.textContent = spec.metric;
     if (teaserStageDot) teaserStageDot.style.background = spec.color;
     if (teaserStageWrap) {
-      teaserStageWrap.style.borderColor = `${spec.color}77`;
-      teaserStageWrap.style.boxShadow = `0 10px 28px ${spec.color}1c`;
+      teaserStageWrap.style.borderColor = `${spec.color}44`;
     }
     if (teaserFootTxt && teaserJump) {
       teaserFootTxt.innerHTML = spec.desc;
@@ -2064,6 +2074,23 @@
 
   if (teaserExp) {
     setTeaserBranch("cam");
+    if (teaserStageVid) {
+      teaserStageVid.loop = false;
+      teaserStageVid.addEventListener("ended", () => {
+        if (teaserPaused || teaserManual || !teaserVisible) {
+          teaserStageVid.currentTime = 0;
+          if (teaserVisible) teaserStageVid.play().catch(() => {});
+          return;
+        }
+        teaserIdx = (teaserIdx + 1) % TEASER_ORDER.length;
+        setTeaserBranch(TEASER_ORDER[teaserIdx]);
+      });
+      new IntersectionObserver((entries) => {
+        teaserVisible = entries.some((e) => e.isIntersecting);
+        if (teaserVisible) teaserStageVid.play().catch(() => {});
+        else teaserStageVid.pause();
+      }, { threshold: 0.25 }).observe(teaserStageVid);
+    }
     teaserExp.querySelectorAll(".t-branch").forEach((el) => {
       const k = el.dataset.branch;
       el.addEventListener("mouseenter", () => {
@@ -2071,25 +2098,24 @@
         if (teaserAutoPill) teaserAutoPill.textContent = "Interactive";
         teaserIdx = TEASER_ORDER.indexOf(k);
         setTeaserBranch(k);
+        if (teaserVisible && teaserStageVid) teaserStageVid.play().catch(() => {});
       });
       el.addEventListener("click", () => {
+        teaserManual = true;
         teaserPaused = true;
         if (teaserAutoPill) teaserAutoPill.textContent = "Selected";
         teaserIdx = TEASER_ORDER.indexOf(k);
         setTeaserBranch(k);
+        if (teaserStageVid) teaserStageVid.play().catch(() => {});
       });
     });
     teaserExp.addEventListener("mouseleave", () => {
-      teaserPaused = false;
-      if (teaserAutoPill) teaserAutoPill.innerHTML = '<span class="adot"></span>Auto-Cycling';
+      if (!teaserManual) {
+        teaserPaused = false;
+        if (teaserAutoPill) teaserAutoPill.innerHTML = '<span class="adot"></span>Auto-Cycling';
+      }
     });
     window.addEventListener("resize", () => drawTeaserWires(teaserActiveKey));
-    setInterval(() => {
-      if (!teaserPaused) {
-        teaserIdx = (teaserIdx + 1) % TEASER_ORDER.length;
-        setTeaserBranch(TEASER_ORDER[teaserIdx]);
-      }
-    }, 3800);
   }
 
   // ---------- 14. Benchmark Tabs (with Auto-Cycling) ----------

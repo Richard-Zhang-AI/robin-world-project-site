@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,500&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="static/css/style.css?v=23">
+<link rel="stylesheet" href="static/css/style.css?v=24">
 </head>
 <body>
 
@@ -199,7 +199,7 @@
             <a class="teaser-jump" id="teaser-jump" href="#camera">Inspect Pillar ↓</a>
           </div>
           <div class="teaser-stage-imgwrap">
-            <img id="teaser-stage-img" src="static/img/teaser_vis/cam_light.png" alt="Active pillar qualitative visualization">
+            <video id="teaser-stage-vid" muted playsinline preload="metadata" poster="static/video/pillars/cam.jpg" src="static/video/pillars/cam.mp4"></video>
           </div>
           <div class="teaser-foot-txt" id="teaser-foot-txt">
             <b>Camera Perception (31/36 #1):</b> Estimates camera <i>roll, pitch, vFoV</i> alongside dense perspective fields <i>F</i> with closed-loop residual feedback (−41.9% error).
@@ -944,6 +944,6 @@
 <script src="static/js/vendor/three.min.js"></script>
 <script src="static/js/vendor/OrbitControls.js"></script>
 <script src="static/js/demo_data.js?v=3"></script>
-<script src="static/js/main.js?v=22"></script>
+<script src="static/js/main.js?v=23"></script>
 </body>
 </html>

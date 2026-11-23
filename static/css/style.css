@@ -434,12 +434,12 @@ figcaption b { color: var(--ink); }
 }
 .teaser-stage-imgwrap {
   display: flex; align-items: center; justify-content: center;
-  min-height: 290px; max-height: 360px; padding: 8px; border-radius: 10px;
-  background: #f8fafc; border: 1px solid var(--line);
+  min-height: 290px; max-height: 360px; padding: 4px; border-radius: 10px;
+  background: #f8fafc; border: 1px solid var(--line); overflow: hidden;
   transition: border-color .2s ease;
 }
-.teaser-stage-imgwrap img {
-  max-width: 100%; max-height: 342px; width: auto; height: auto; object-fit: contain; display: block; border-radius: 6px;
+.teaser-stage-imgwrap img, .teaser-stage-imgwrap video {
+  width: 100%; height: auto; max-height: 348px; object-fit: contain; display: block; border-radius: 7px;
 }
 .t-vis-dot { width: 8px; height: 8px; border-radius: 50%; flex: none; background: var(--p1); }
 .teaser-foot-txt { font: 400 12.6px/1.45 var(--sans); color: var(--ink-soft); }
