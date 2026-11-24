@@ -86,14 +86,6 @@ a:hover { text-decoration: underline; }
 .topnav .links a.nav-p2:hover, .topnav .links a.nav-p2.active { background: var(--p2-bg); border-color: var(--p2-bd); color: var(--p2); font-weight: 600; }
 .topnav .links a.nav-p3:hover, .topnav .links a.nav-p3.active { background: var(--p3-bg); border-color: var(--p3-bd); color: var(--p3); font-weight: 600; }
 .topnav .links a.nav-p4:hover, .topnav .links a.nav-p4.active { background: var(--p4-bg); border-color: var(--p4-bd); color: var(--p4); font-weight: 600; }
-.nav-dot {
-  display: inline-block; width: 6px; height: 6px; border-radius: 50%; margin-right: 6px; vertical-align: 1px;
-}
-.nav-p1 .nav-dot { background: var(--p1); }
-.nav-p2 .nav-dot { background: var(--p2); }
-.nav-p3 .nav-dot { background: var(--p3); }
-.nav-p4 .nav-dot { background: var(--p4); }
-
 /* ---------- hero ---------- */
 .hero {
   position: relative; min-height: clamp(640px, 84vh, 840px); overflow: hidden; color: var(--ink);
@@ -125,7 +117,6 @@ a:hover { text-decoration: underline; }
   border: 1px solid var(--line-strong); background: #ffffff; color: var(--ink-soft);
   text-transform: uppercase;
 }
-.badge .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--navy); }
 .hero h1 {
   margin: 18px 0 6px; font: 700 clamp(44px, 7.6vw, 88px)/1 var(--serif); letter-spacing: -1.5px;
   color: var(--ink); display: flex; align-items: center; justify-content: center; gap: .2em;

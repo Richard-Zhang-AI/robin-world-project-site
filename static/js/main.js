@@ -295,22 +295,22 @@
     out_geo2:{ x: 958,  y: 675, w: 220, h: 127, r: 6,  color: "#34d399", routes: ["cam", "geo", "qa"], wires: ["w-dit-geo", "w-geo-sketch", "w-geo-3d"], title: "Generated Depth ρ & Normals N", meta: "Geo Head Output", desc: "Hole-free inverse depth and surface normals for 3D lifting and CoGT reasoning." },
 
     cam_in:  { x: 1347, y: 49,  w: 292, h: 80,  r: 5, color: "#fb7185", routes: ["cam"], wires: ["w-vlm-cam"], title: "Camera Perception · Visual & Field", meta: "Image I₀ → Field F", desc: "Predicted horizon and pixel up-vectors overlaid on the input frame." },
-    cam_out: { x: 1649, y: 42,  w: 378, h: 96,  r: 5, color: "#fb7185", routes: ["cam"], wires: ["w-vlm-cam"], title: "Pillar 1 · Camera Calibration & Active Re-Level", meta: "31/36 #1 · MegaDepth 0.24° / 0.81° / 1.57°", desc: "Outputs roll, pitch, vFoV, elevation category, and active re-leveling feedback (−41.9% error)." },
+    cam_out: { x: 1649, y: 42,  w: 378, h: 96,  r: 5, color: "#fb7185", routes: ["cam"], wires: ["w-vlm-cam"], title: "Camera Calibration & Active Re-Level", meta: "31/36 #1 · MegaDepth 0.24° / 0.81° / 1.57°", desc: "Outputs roll, pitch, vFoV, elevation category, and active re-leveling feedback (−41.9% error)." },
 
     qa_in:   { x: 1347, y: 205, w: 262, h: 106, r: 5, color: "#a78bfa", routes: ["qa"], wires: ["w-vlm-qa"], title: "Spatial Reasoning · Image + Sketchpad", meta: "I₀ + (ρ, N) Sketchpad", desc: "Self-generated depth and surface normals aligned with the observed room." },
-    qa_out:  { x: 1622, y: 213, w: 405, h: 94,  r: 5, color: "#a78bfa", routes: ["qa"], wires: ["w-vlm-qa"], title: "Pillar 3 · Geometry-Grounded Answer", meta: "CV 87.4% · VSI 76.50% · MMSI 37.2% · BLINK 50.08%", desc: "CoGT evidence resolves relative 3D layout where direct inference fails." },
+    qa_out:  { x: 1622, y: 213, w: 405, h: 94,  r: 5, color: "#a78bfa", routes: ["qa"], wires: ["w-vlm-qa"], title: "Geometry-Grounded Answer", meta: "CV 87.4% · VSI 76.50% · MMSI 37.2% · BLINK 50.08%", desc: "CoGT evidence resolves relative 3D layout where direct inference fails." },
 
-    geo_in:  { x: 1347, y: 372, w: 680, h: 138, r: 6, color: "#34d399", routes: ["geo"], wires: ["w-geo-3d"], title: "Pillar 2 · 3D Geometry & Uncalibrated Lifting", meta: "NYUv2 δ₁ 0.992 (#1) · Normals 12.3° (#1) · Relᴾ 0.0340", desc: "Jointly generates perspective fields, inverse depth, and normals, lifting intrinsic-free 3D point clouds." },
+    geo_in:  { x: 1347, y: 372, w: 680, h: 138, r: 6, color: "#34d399", routes: ["geo"], wires: ["w-geo-3d"], title: "3D Geometry & Uncalibrated Lifting", meta: "NYUv2 δ₁ 0.992 (#1) · Normals 12.3° (#1) · Relᴾ 0.0340", desc: "Jointly generates perspective fields, inverse depth, and normals, lifting intrinsic-free 3D point clouds." },
 
     sim_in:  { x: 1219, y: 578, w: 138, h: 222, r: 6, color: "#38bdf8", routes: ["sim"], wires: ["w-rgb-sim"], title: "World Sim · Anchor, JEPA Z & 3D Cloud", meta: "I₀ · JEPA State Z · 3D Cloud X*", desc: "Shared anchor frame paired with V-JEPA 2.1 world state and lifted 3D point cloud." },
-    sim_out: { x: 1381, y: 578, w: 646, h: 222, r: 6, color: "#38bdf8", routes: ["sim"], wires: ["w-rgb-sim"], title: "Pillar 4 · Discrete Space & Frozen Time", meta: "WBench 79.0 · WMB 7.98 · JEPA Z (+7.74 dB) · 3D Cloud (0.934)", desc: "Generates discrete viewpoint jumps and fixed-time bullet-time views from one model." },
+    sim_out: { x: 1381, y: 578, w: 646, h: 222, r: 6, color: "#38bdf8", routes: ["sim"], wires: ["w-rgb-sim"], title: "Discrete Space & Frozen Time", meta: "WBench 79.0 · WMB 7.98 · JEPA Z (+7.74 dB) · 3D Cloud (0.934)", desc: "Generates discrete viewpoint jumps and fixed-time bullet-time views from one model." },
   };
   const ARCH_ROUTES = {
     cam: {
       boxes: ["in_imgs", "enc_img", "enc_vis", "enc_ctx", "vlm_ctx", "vlm_s0", "vlm_trk", "dit", "geo_head", "out_geo1", "out_geo2", "cogt_skt", "cogt_fit", "cam_in", "cam_out"],
       wires: ["w-img-vis", "w-enc-vlm", "w-ctx-dit", "w-vlm-s0", "w-s0-trk", "w-dit-geo", "w-geo-sketch", "w-sketch-fit", "w-fit-vlm", "w-vlm-cam"],
       color: "#9f3e52",
-      title: "Path 1 · Camera Perception & Closed-Loop Feedback",
+      title: "Camera Perception & Closed-Loop Feedback",
       meta: "I → ĉ ← w_F(E)·c^F  |  η = 0.85 Feedback (−41.9%)",
       desc: "Understanding predicts initial pose; DiT generates perspective field F; Camera-Field Fit refines roll/pitch via residual gating (60.65% Mean@1), while readback corrects camera commands.",
     },
@@ -318,7 +318,7 @@
       boxes: ["in_imgs", "enc_img", "enc_vis", "enc_vae", "enc_ctx", "vlm_ctx", "vlm_s0", "dit", "geo_head", "out_geo1", "out_geo2", "geo_in"],
       wires: ["w-img-vis", "w-img-vae", "w-enc-vlm", "w-ctx-dit", "w-vae-dit", "w-vlm-s0", "w-dit-geo", "w-geo-3d"],
       color: "#2b7a5e",
-      title: "Path 2 · Dense 3D Geometry & Intrinsic-Free Lifting",
+      title: "Dense 3D Geometry & Intrinsic-Free Lifting",
       meta: "G = (F, ρ, N) → X_cam = d(p)·K⁻¹·p̃",
       desc: "Shared DiT attention jointly denoises perspective fields, inverse depth, and surface normals, lifting uncalibrated 3D point clouds without ground-truth intrinsics.",
     },
@@ -326,7 +326,7 @@
       boxes: ["in_imgs", "in_q", "enc_cap", "enc_tok", "enc_img", "enc_vis", "enc_dino", "enc_ctx", "vlm_ctx", "vlm_s0", "vlm_trk", "dit", "geo_head", "out_geo1", "out_geo2", "cogt_skt", "cogt_fus", "qa_in", "qa_out"],
       wires: ["w-in-text", "w-img-vis", "w-img-dino", "w-enc-vlm", "w-ctx-dit", "w-vlm-s0", "w-s0-trk", "w-dino-fusion", "w-dit-geo", "w-geo-sketch", "w-sketch-fusion", "w-fusion-vlm", "w-vlm-qa"],
       color: "#5b4d96",
-      title: "Path 3 · Spatial Reasoning via Chain of Geometric Thought",
+      title: "Spatial Reasoning via Chain of Geometric Thought",
       meta: "S' = S + tanh(α)·W_o·softmax(QKᵀ/√d + log(π(S)+ε))V(H)",
       desc: "Self-generated (F, ρ, N) maps are encoded on the 16×16 grid, combined with DINOv3 features, and selectively fused into Qwen3-VL (+8.10% on VSI-Bench).",
     },
@@ -334,7 +334,7 @@
       boxes: ["in_imgs", "in_q", "in_cam", "in_pose", "in_time", "enc_cap", "enc_tok", "enc_img", "enc_vis", "enc_vae", "enc_ctx", "vlm_ctx", "vlm_s0", "rope", "dit", "rgb_head", "out_rgb", "sim_in", "sim_out"],
       wires: ["w-in-text", "w-img-vis", "w-img-vae", "w-enc-vlm", "w-ctx-dit", "w-vae-dit", "w-vlm-s0", "w-in-rope", "w-dit-rgb", "w-rgb-sim"],
       color: "#2563a8",
-      title: "Path 4 · Controllable World Simulation",
+      title: "Controllable World Simulation",
       meta: "Îₖ = R_θ(Z, I, Cₖ, τₖ)  |  V̂ = R_θ(Z, V, {Cₖ}, t*, Ṽ)",
       desc: "Continuous trajectories condition SolarWM-H3 via 6-DoF RoPE; discrete jumps use V-JEPA 2.1 state Z (+7.74 dB cross-view); bullet-time anchors visible surfaces with 3D point clouds.",
     },
@@ -414,14 +414,14 @@
 
   // Coarse capability hotspots directly on the diagram (no micro-module clicking!)
   const CAPABILITY_HOTSPOTS = [
-    { route: "cam", x: 1332, y: 6,   w: 710, h: 150, label: "1 · Camera Perception" },
-    { route: "cam", x: 1152, y: 278, w: 140, h: 198, label: "1 · Camera-Field Fit" },
-    { route: "qa",  x: 1332, y: 168, w: 710, h: 156, label: "3 · Spatial Reasoning" },
-    { route: "qa",  x: 772,  y: 278, w: 368, h: 198, label: "3 · CoGT Fusion & Sketchpad" },
-    { route: "geo", x: 1332, y: 336, w: 710, h: 184, label: "2 · 3D Geometry" },
-    { route: "geo", x: 858,  y: 544, w: 320, h: 258, label: "2 · Dense Geometry Outputs" },
-    { route: "sim", x: 1204, y: 532, w: 838, h: 282, label: "4 · World Simulation" },
-    { route: "sim", x: 6,    y: 302, w: 250, h: 512, label: "4 · Camera & Time Queries" },
+    { route: "cam", x: 1332, y: 6,   w: 710, h: 150, label: "Camera Perception" },
+    { route: "cam", x: 1152, y: 278, w: 140, h: 198, label: "Camera-Field Fit" },
+    { route: "qa",  x: 1332, y: 168, w: 710, h: 156, label: "Spatial Reasoning" },
+    { route: "qa",  x: 772,  y: 278, w: 368, h: 198, label: "CoGT Fusion & Sketchpad" },
+    { route: "geo", x: 1332, y: 336, w: 710, h: 184, label: "3D Geometry" },
+    { route: "geo", x: 858,  y: 544, w: 320, h: 258, label: "Dense Geometry Outputs" },
+    { route: "sim", x: 1204, y: 532, w: 838, h: 282, label: "World Simulation" },
+    { route: "sim", x: 6,    y: 302, w: 250, h: 512, label: "Camera & Time Queries" },
   ];
 
   if (archHotspots) {
