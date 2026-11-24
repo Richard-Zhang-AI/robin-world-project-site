@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,500&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="static/css/style.css?v=26">
+<link rel="stylesheet" href="static/css/style.css?v=27">
 </head>
 <body>
 
@@ -230,7 +230,7 @@
   <div class="wrap">
     <div class="eyebrow">Animated Model Architecture</div>
     <h2 class="title">How geometry, language, and generation reinforce each other</h2>
-    <p class="lead">Hover any module on the diagram—or click one of the four capability buttons below—to highlight its active components and flowing signal paths.</p>
+    <p class="lead">Hover over the diagram to preview a capability, or select a capability to keep its modules and signal paths highlighted.</p>
 
     <div class="pipeline-explorer reveal">
       <div class="pipeline-stage-bar">
@@ -376,8 +376,7 @@
               </g>
             </g>
 
-            <!-- Exact module border traces -->
-            <g id="arch-glints"></g>
+            <g id="arch-module-outlines"></g>
           </svg>
 
           <!-- Exact Remotion Hotspots -->
@@ -780,7 +779,7 @@
   </div>
 </dialog>
 
-<!-- ============ benchmarks (differentiated by 4 capabilities, transparent charts) ============ -->
+<!-- ============ benchmark tables ============ -->
 <section class="block" id="benchmarks">
   <div class="wrap">
     <div class="eyebrow">Quantitative Results · Four Spatial Capabilities</div>
@@ -796,13 +795,7 @@
 
     <!-- Pillar 1: Camera Perception Panel -->
     <div class="card pad reveal" data-bench-panel="cam">
-      <div class="split" style="align-items:center;margin-bottom:18px">
-        <div>
-          <h3 style="margin-bottom:6px">MegaDepth Single-View Calibration</h3>
-          <p class="small muted" style="margin:0">Leads <b>12/12</b> on MegaDepth and <b>31/36</b> across MegaDepth, TartanAir &amp; LaMAR.</p>
-        </div>
-        <img class="figimg" src="static/img/camera_radar_light.png" alt="MegaDepth, TartanAir, LaMAR radar charts">
-      </div>
+      <h3 style="margin-bottom:10px">MegaDepth Single-View Calibration</h3>
       <div class="tblwrap">
         <table class="tbl compact">
           <thead>
@@ -847,13 +840,7 @@
 
     <!-- Pillar 3: Spatial Reasoning Panel -->
     <div class="card pad" data-bench-panel="qa" style="display:none">
-      <div class="split" style="align-items:center;margin-bottom:18px">
-        <div>
-          <h3 style="margin-bottom:6px">Spatial Question Answering (4 Benchmarks)</h3>
-          <p class="small muted" style="margin:0">Rank #1 on <b>CV-Bench (87.4%)</b>, <b>VSI-Bench (76.50%)</b>, <b>MMSI-Bench (37.2%)</b>, and <b>BLINK (50.08%)</b>.</p>
-        </div>
-        <img class="figimg" src="static/img/reasoning_cmp_light.png" alt="Spatial reasoning Pareto comparison" style="max-width:420px;margin:0 auto">
-      </div>
+      <h3 style="margin-bottom:10px">Spatial Question Answering (4 Benchmarks)</h3>
       <div class="tblwrap">
         <table class="tbl">
           <thead>
@@ -874,15 +861,7 @@
 
     <!-- Pillar 4: World Simulation Panel -->
     <div class="card pad" data-bench-panel="sim" style="display:none">
-      <div class="split" style="align-items:center;margin-bottom:18px">
-        <div>
-          <h3 style="margin-bottom:6px">WBench (158 Cases) &amp; WorldModelBench (350 Clips)</h3>
-          <p class="small muted" style="margin:0">WBench Qual. <b>79.0 (#1)</b> · WorldModelBench <b>7.98 (#1)</b> · JEPA Z <b>+7.74 dB</b> cross-view · Bullet-time <b>0.934</b>.</p>
-        </div>
-        <img class="figimg" src="static/img/wbench_radar_light.png" alt="WBench 11-metric radar chart" style="max-width:400px;margin:0 auto">
-      </div>
-
-      <h4 style="margin:0 0 8px;font:600 13.5px/1 var(--mono);color:var(--navy)">WBench Navigation (158 Cases)</h4>
+      <h3 style="margin-bottom:10px">WBench Navigation (158 Cases)</h3>
       <div class="tblwrap" style="margin-bottom:20px">
         <table class="tbl">
           <thead>
@@ -903,7 +882,7 @@
         </table>
       </div>
 
-      <h4 style="margin:0 0 8px;font:600 13.5px/1 var(--mono);color:var(--navy)">WorldModelBench (350 Test Clips)</h4>
+      <h3 style="margin-bottom:10px">WorldModelBench (350 Test Clips)</h3>
       <div class="tblwrap">
         <table class="tbl">
           <thead>
@@ -931,6 +910,6 @@
 <script src="static/js/vendor/three.min.js"></script>
 <script src="static/js/vendor/OrbitControls.js"></script>
 <script src="static/js/demo_data.js?v=3"></script>
-<script src="static/js/main.js?v=25"></script>
+<script src="static/js/main.js?v=26"></script>
 </body>
 </html>

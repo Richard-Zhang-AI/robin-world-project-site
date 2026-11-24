@@ -252,7 +252,7 @@
   const archBoard = document.getElementById("arch-board");
   const archCutouts = document.getElementById("arch-cutouts");
   const archActiveArrows = document.getElementById("arch-active-arrows");
-  const archGlints = document.getElementById("arch-glints");
+  const archModuleOutlines = document.getElementById("arch-module-outlines");
   const archHotspots = document.getElementById("arch-hotspots");
   const archFlows = [...document.querySelectorAll("#arch-flows .flow-pulse")];
   const archChoiceBtns = [...document.querySelectorAll("#arch-choices button")];
@@ -344,9 +344,9 @@
   let archPlaying = true;
 
   function renderArchOverlay(boxIds, wireIds, color, info) {
-    if (!archBoard || !archCutouts || !archGlints || !archActiveArrows) return;
+    if (!archBoard || !archCutouts || !archModuleOutlines || !archActiveArrows) return;
     archCutouts.innerHTML = "";
-    archGlints.innerHTML = "";
+    archModuleOutlines.innerHTML = "";
     archActiveArrows.innerHTML = "";
     if (!boxIds || !boxIds.length) {
       archBoard.classList.remove("is-focused");
@@ -368,25 +368,11 @@
       cut.setAttribute("rx", b.r || 8); cut.setAttribute("fill", "black");
       archCutouts.appendChild(cut);
 
-      const g = document.createElementNS("http://www.w3.org/2000/svg", "g");
-      g.setAttribute("class", "module-glint-group lit");
-      g.style.color = color || b.color;
-      const r1 = document.createElementNS("http://www.w3.org/2000/svg", "rect");
-      r1.setAttribute("class", "module-glint-box");
-      r1.setAttribute("x", b.x); r1.setAttribute("y", b.y);
-      r1.setAttribute("width", b.w); r1.setAttribute("height", b.h);
-      r1.setAttribute("rx", b.r || 8);
-      r1.style.stroke = color || b.color;
-      r1.style.strokeWidth = "3.4";
-      const r2 = document.createElementNS("http://www.w3.org/2000/svg", "rect");
-      r2.setAttribute("class", "module-glint-sweep");
-      r2.setAttribute("x", b.x); r2.setAttribute("y", b.y);
-      r2.setAttribute("width", b.w); r2.setAttribute("height", b.h);
-      r2.setAttribute("rx", b.r || 8);
-      r2.setAttribute("pathLength", "100");
-      r2.style.strokeWidth = "3.8";
-      g.appendChild(r1); g.appendChild(r2);
-      archGlints.appendChild(g);
+      const outline = cut.cloneNode();
+      outline.removeAttribute("fill");
+      outline.setAttribute("class", "module-outline");
+      outline.style.color = color || b.color;
+      archModuleOutlines.appendChild(outline);
     });
 
     // 2. Render crisp animated flowing dashed arrows ON TOP of the dimmed scrim (no white sausage!)
@@ -483,25 +469,6 @@
       });
     });
 
-    // Auto-cycle across 4 capability routes unless user hovers/selects manually
-    const archExplorer = document.querySelector(".pipeline-explorer");
-    const ARCH_ROUTE_LIST = ["cam", "geo", "qa", "sim"];
-    let archAutoIdx = 0;
-    let archAutoPaused = false;
-    archExplorer?.addEventListener("mouseenter", () => (archAutoPaused = true));
-    archExplorer?.addEventListener("mouseleave", () => {
-      if (lockedArchRoute === "all") archAutoPaused = false;
-    });
-    archChoiceBtns.forEach((b) => b.addEventListener("click", () => (archAutoPaused = true)));
-    archAllBtn?.addEventListener("click", () => (archAutoPaused = false));
-    setInterval(() => {
-      if (!archAutoPaused && archPlaying && lockedArchRoute === "all") {
-        const r = ARCH_ROUTE_LIST[archAutoIdx];
-        archChoiceBtns.forEach((c) => c.classList.toggle("on", c.dataset.route === r));
-        applyArchState({ route: r });
-        archAutoIdx = (archAutoIdx + 1) % ARCH_ROUTE_LIST.length;
-      }
-    }, 4200);
   }
 
   // ---------- 5B. High-Contrast Interactive 6-Stage Training Curriculum ----------

@@ -543,7 +543,6 @@ figcaption b { color: var(--ink); }
 }
 .pipeline-scrim {
   fill: rgba(248, 250, 252, 0.78);
-  transition: opacity .25s ease;
   opacity: 0;
 }
 .pipeline-board.is-focused .pipeline-scrim {
@@ -591,21 +590,11 @@ figcaption b { color: var(--ink); }
 .pipeline-hotspots { position: absolute; inset: 0; }
 .module-hotspot {
   position: absolute; padding: 0; margin: 0; border: 0; border-radius: 8px;
-  background: transparent; cursor: pointer; transition: background .2s ease;
+  background: transparent; cursor: pointer;
 }
 .module-hotspot:hover { background: rgba(15, 23, 42, .03); }
-.module-glint-box {
-  fill: none; stroke: var(--p4); stroke-width: 2.4; rx: 8; opacity: 0; transition: opacity .2s ease;
-}
-.module-glint-sweep {
-  fill: none; stroke: rgba(255, 255, 255, .85); stroke-width: 2.2; stroke-linecap: round;
-  stroke-dasharray: 18 82; rx: 8; opacity: 0;
-}
-.module-glint-group.lit .module-glint-box { opacity: 0.90; }
-.module-glint-group.lit .module-glint-sweep { opacity: 0.90; animation: module-trace 1.35s linear infinite; }
-@keyframes module-trace {
-  0%   { stroke-dashoffset: 0; }
-  100% { stroke-dashoffset: -100; }
+.module-outline {
+  fill: none; stroke: currentColor; stroke-width: 3.4; opacity: .90;
 }
 
 .module-choices {
