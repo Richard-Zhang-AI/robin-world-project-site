@@ -103,24 +103,6 @@
     });
   }
 
-  function animateCountups(root) {
-    (root || document).querySelectorAll(".countup:not([data-counted])").forEach((el) => {
-      el.dataset.counted = "1";
-      const target = parseFloat(el.dataset.target || "0");
-      const dec = parseInt(el.dataset.dec || "0", 10);
-      const t0 = performance.now();
-      const dur = 950;
-      function tick(now) {
-        const p = Math.min(1, (now - t0) / dur);
-        const ease = 1 - Math.pow(1 - p, 3);
-        el.textContent = (target * ease).toFixed(dec);
-        if (p < 1) requestAnimationFrame(tick);
-        else el.textContent = target.toFixed(dec);
-      }
-      requestAnimationFrame(tick);
-    });
-  }
-
   function animateVBars(container) {
     if (container.dataset.done) return;
     container.dataset.done = "1";
@@ -171,7 +153,6 @@
       entries.forEach((e) => {
         if (e.isIntersecting) {
           e.target.classList.add("in");
-          animateCountups(e.target);
           revObs.unobserve(e.target);
         }
       });
@@ -184,7 +165,6 @@
       const r = el.getBoundingClientRect();
       if (r.top < vh * 0.96 && r.bottom > 40) {
         el.classList.add("in");
-        animateCountups(el);
       }
     });
   }
@@ -1780,7 +1760,7 @@
     geo: {
       title: "3D Geometry",
       metric: "0.992 δ₁ · 12.3°",
-      vid: "static/video/pillars/geo.mp4",
+      vid: "static/video/pillars/geo.mp4?v=2",
       poster: "static/video/pillars/geo.jpg",
       color: "#2b7a5e",
       mods: ["image", "video"],
@@ -1983,7 +1963,6 @@
     });
     document.querySelectorAll("[data-bars]").forEach(animateBars);
     document.querySelectorAll("[data-vbars]").forEach(animateVBars);
-    animateCountups(document);
   }
   if (archChoiceBtns.some((btn) => btn.dataset.route === traceRoute)) {
     archAllBtn?.classList.remove("on");

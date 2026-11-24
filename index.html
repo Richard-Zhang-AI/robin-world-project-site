@@ -9,21 +9,21 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,500&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="static/css/style.css?v=30">
+<link rel="stylesheet" href="static/css/style.css?v=31">
 </head>
 <body>
 
-<!-- ============ navigation (4 capabilities highlighted) ============ -->
+<!-- ============ navigation ============ -->
 <nav class="topnav" id="topnav">
   <a class="brand" href="#top"><img src="static/img/logo.png" alt="Robin-World"><span>Robin-World</span></a>
   <div class="links">
     <a href="#overview">Overview</a>
     <a href="#architecture">Architecture</a>
     <a href="#training">Training</a>
-    <a class="nav-p1" href="#camera">Camera</a>
-    <a class="nav-p2" href="#geometry">3D Geometry</a>
-    <a class="nav-p3" href="#reasoning">Spatial QA</a>
-    <a class="nav-p4" href="#world">World Sim</a>
+    <a href="#camera">Camera</a>
+    <a href="#geometry">3D Geometry</a>
+    <a href="#reasoning">Spatial QA</a>
+    <a href="#world">World Sim</a>
     <a href="#benchmarks">Benchmarks</a>
   </div>
 </nav>
@@ -73,29 +73,6 @@
   <div class="wrap">
     <div class="eyebrow">One Model · Four Spatial Pillars</div>
     <h2 class="title">Shared geometry connects understanding and simulation</h2>
-
-    <div class="stats" style="margin-top:18px">
-      <div class="card stat reveal">
-        <span class="tag cam">Camera Perception</span>
-        <div class="num"><span class="countup" data-target="31" data-dec="0">31</span> / 36 <small>#1</small></div>
-        <div class="lbl">MegaDepth 12/12 #1 (0.24° / 0.81° / 1.57°); −41.9% closed-loop feedback error.</div>
-      </div>
-      <div class="card stat reveal">
-        <span class="tag geo">3D Geometry</span>
-        <div class="num"><span class="countup" data-target="0.992" data-dec="3">0.992</span> <small>&delta;₁ · <span class="countup" data-target="12.3" data-dec="1">12.3</span>°</small></div>
-        <div class="lbl">NYUv2 depth &delta;₁ #1, all 3 normal metrics #1, plus lifted 3D point maps (Relᴾ 0.0340).</div>
-      </div>
-      <div class="card stat reveal">
-        <span class="tag qa">Spatial Reasoning</span>
-        <div class="num"><span class="countup" data-target="87.4" data-dec="1">87.4</span> / <span class="countup" data-target="76.5" data-dec="1">76.5</span><small>%</small></div>
-        <div class="lbl">Rank #1 on CV-Bench (87.4%), VSI-Bench (76.50%), MMSI (37.2%), and BLINK (50.08%).</div>
-      </div>
-      <div class="card stat reveal">
-        <span class="tag sim">World Simulation</span>
-        <div class="num"><span class="countup" data-target="79.0" data-dec="1">79.0</span> <small>Qual · <span class="countup" data-target="7.98" data-dec="2">7.98</span> WMB</small></div>
-        <div class="lbl">WBench Qual. #1, WorldModelBench #1 (7.98), +7.74 dB jumps &amp; 0.934 bullet-time.</div>
-      </div>
-    </div>
 
     <div class="teaser-exp card reveal" id="teaser-explorer">
       <div class="teaser-bar">
@@ -888,6 +865,6 @@
 <script src="static/js/vendor/three.min.js"></script>
 <script src="static/js/vendor/OrbitControls.js"></script>
 <script src="static/js/demo_data.js?v=3"></script>
-<script src="static/js/main.js?v=28"></script>
+<script src="static/js/main.js?v=29"></script>
 </body>
 </html>
