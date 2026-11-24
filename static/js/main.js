@@ -193,7 +193,7 @@
   window.addEventListener("hashchange", () => setTimeout(revealVisible, 80));
   setTimeout(revealVisible, 120);
 
-  // ---------- 4. Generic drag comparison slider (+ gentle auto-sweep helper) ----------
+  // ---------- 4. Image comparison slider ----------
   function initCmp(el) {
     const knob = el.querySelector(".knob");
     const min = 0.02;
@@ -205,10 +205,8 @@
       el.style.setProperty("--cmp-pos", `${pct}%`);
       knob.setAttribute("aria-valuenow", pct);
     };
-    el._setPos = set;
     let activePointer = null;
     const setManual = (p) => {
-      el.classList.remove("auto-sweep");
       el.classList.add("touched");
       set(p);
     };
@@ -340,7 +338,6 @@
     },
   };
 
-  let lockedArchRoute = "all";
   let archPlaying = true;
 
   function renderArchOverlay(boxIds, wireIds, color, info) {
@@ -351,7 +348,7 @@
     if (!boxIds || !boxIds.length) {
       archBoard.classList.remove("is-focused");
       archFlows.forEach((f) => f.classList.remove("is-dim"));
-      inspTitle.textContent = "Unified Spatial Architecture — Hover or Select Any Capability";
+      inspTitle.textContent = "Unified Spatial Architecture";
       inspMeta.textContent = "Qwen3-VL ↔ SolarWM-H3 DiT ↔ CoGT";
       inspDesc.textContent = "Qwen3-VL encodes visual/language context and feeds layer-50 states into the shared SolarWM-H3 DiT, whose RGB and geometry heads (F, ρ, N) loop back through Chain of Geometric Thought (CoGT) to refine camera pose and ground spatial reasoning.";
       return;
@@ -433,10 +430,7 @@
       btn.style.top = `${(h.y / 8.20).toFixed(2)}%`;
       btn.style.width = `${(h.w / 20.48).toFixed(2)}%`;
       btn.style.height = `${(h.h / 8.20).toFixed(2)}%`;
-      btn.addEventListener("mouseenter", () => applyArchState({ route: h.route }));
-      btn.addEventListener("mouseleave", () => applyArchState({ route: lockedArchRoute === "all" ? null : lockedArchRoute }));
       btn.addEventListener("click", () => {
-        lockedArchRoute = h.route;
         archAllBtn?.classList.remove("on");
         archChoiceBtns.forEach((c) => c.classList.toggle("on", c.dataset.route === h.route));
         applyArchState({ route: h.route });
@@ -447,7 +441,6 @@
     archChoiceBtns.forEach((btn) => {
       btn.addEventListener("click", () => {
         const r = btn.dataset.route;
-        lockedArchRoute = r;
         archAllBtn?.classList.remove("on");
         archChoiceBtns.forEach((c) => c.classList.toggle("on", c === btn));
         applyArchState({ route: r });
@@ -455,7 +448,6 @@
     });
 
     archAllBtn?.addEventListener("click", () => {
-      lockedArchRoute = "all";
       archAllBtn.classList.add("on");
       archChoiceBtns.forEach((c) => c.classList.remove("on"));
       applyArchState({});
@@ -536,27 +528,31 @@
   const corpusGrid = document.getElementById("corpus-grid");
   const trainBadge = document.getElementById("train-stage-badge");
   const trainWires = [...document.querySelectorAll(".train-wires-svg .t-wire")];
+  let selectedStage = null;
 
   function focusStage(st) {
     if (!trainGrid || !corpusGrid) return;
-    const cards = [...trainGrid.querySelectorAll(".st-card")];
+    selectedStage = st;
+    trainGrid.querySelectorAll(".st-card").forEach((card) => {
+      const selected = Number(card.dataset.sid) === st?.id;
+      card.classList.toggle("lit", selected);
+      card.setAttribute("aria-pressed", String(selected));
+    });
     const dsEls = [...corpusGrid.querySelectorAll(".ds-pill")];
 
     if (!st) {
       trainFlowWrap?.classList.remove("has-focus");
       trainGrid.classList.remove("has-focus");
       corpusGrid.classList.remove("has-focus");
-      cards.forEach((c) => c.classList.remove("lit"));
       dsEls.forEach((p) => p.classList.remove("lit"));
       trainWires.forEach((w) => w.classList.remove("lit"));
-      trainBadge.textContent = "Hover or click any stage to isolate its corpus";
+      trainBadge.textContent = "Select a stage to isolate its corpus";
       return;
     }
 
     trainFlowWrap?.classList.add("has-focus");
     trainGrid.classList.add("has-focus");
     corpusGrid.classList.add("has-focus");
-    cards.forEach((c) => c.classList.toggle("lit", parseInt(c.dataset.sid, 10) === st.id));
     dsEls.forEach((p) => {
       const hit = st.datasets.includes(p.dataset.ds);
       p.classList.toggle("lit", hit);
@@ -573,6 +569,9 @@
     TRAIN_STAGES.forEach((st) => {
       const c = document.createElement("div");
       c.className = "st-card";
+      c.tabIndex = 0;
+      c.setAttribute("role", "button");
+      c.setAttribute("aria-pressed", "false");
       c.dataset.sid = st.id;
       c.style.setProperty("--st-color", st.color);
       c.style.setProperty("--st-bg", st.bg);
@@ -587,9 +586,13 @@
         <h4>${st.title}</h4>
         <div class="mod">${st.modules}</div>
         <div class="dat"><b>Data:</b> ${st.datasets.join(", ")}</div>`;
-      c.addEventListener("mouseenter", () => focusStage(st));
-      c.addEventListener("mouseleave", () => focusStage(null));
-      c.addEventListener("click", () => focusStage(st));
+      c.addEventListener("click", () => focusStage(selectedStage === st ? null : st));
+      c.addEventListener("keydown", (e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          c.click();
+        }
+      });
       trainGrid.appendChild(c);
     });
     CORPUS_18.forEach((ds) => {
@@ -599,18 +602,6 @@
       p.innerHTML = `<div class="n">${ds.name}</div><div class="sz">${ds.size}</div>`;
       corpusGrid.appendChild(p);
     });
-    // Auto-cycle Stages 1 -> 6 unless hovering/interacting with curriculum
-    const trainShell = document.querySelector(".train-shell");
-    let trainAutoIdx = 0;
-    let trainAutoPaused = false;
-    trainShell?.addEventListener("mouseenter", () => (trainAutoPaused = true));
-    trainShell?.addEventListener("mouseleave", () => (trainAutoPaused = false));
-    setInterval(() => {
-      if (!trainAutoPaused) {
-        focusStage(TRAIN_STAGES[trainAutoIdx]);
-        trainAutoIdx = (trainAutoIdx + 1) % TRAIN_STAGES.length;
-      }
-    }, 3200);
   }
 
   // ---------- 6. Interactive Closed-Loop Camera Feedback ----------
@@ -637,32 +628,14 @@
     fbNote.innerHTML = `<b>${c.title} (${c.drop} pose error)</b> — ${c.detail}`;
   }
   if (fbChips) {
-    let fbIdx = 0;
-    let fbPaused = false;
-    const fbAutoPill = document.getElementById("fb-auto-pill");
     FB_CASES.forEach((c, i) => {
       const b = document.createElement("button");
       b.className = "chip" + (i === 0 ? " on" : "");
       b.innerHTML = `${c.title}<span class="v">${c.drop}</span>`;
-      b.addEventListener("click", () => {
-        fbPaused = true;
-        if (fbAutoPill) fbAutoPill.textContent = "Manual";
-        fbIdx = i;
-        setFb(i);
-      });
+      b.addEventListener("click", () => setFb(i));
       fbChips.appendChild(b);
     });
     setFb(0);
-    const fbCard = fbChips.closest(".card");
-    const fbCmp = document.getElementById("fb-cmp");
-    fbCard?.addEventListener("mouseenter", () => (fbPaused = true));
-    fbCard?.addEventListener("mouseleave", () => (fbPaused = false));
-    setInterval(() => {
-      if (!fbPaused && !fbCmp?.matches(".dragging, :focus-within")) {
-        fbIdx = (fbIdx + 1) % FB_CASES.length;
-        setFb(fbIdx);
-      }
-    }, 4500);
   }
 
   // ---------- 7. Interactive 3D Geometry Inspection (6 Scenes) ----------
@@ -1025,63 +998,26 @@
     if (sync3D && pcViewer) pcViewer.setScene(sc, true);
   }
   if (geoSceneChips) {
-    let geoPaused = false;
-    const geoCard = document.getElementById("geo-card");
-    const pc3dCard = document.getElementById("pc3d-card");
-    const geoAutoPill = document.getElementById("geo-auto-pill");
-    const geoCmp = document.getElementById("geo-cmp");
-    let sweepRight = true;
-
     GEO_SCENES.forEach((sc, i) => {
       const b = document.createElement("button");
       b.className = "chip" + (i === 0 ? " on" : "");
       b.textContent = sc.label;
       b.addEventListener("click", () => {
-        geoPaused = true;
-        if (geoAutoPill) geoAutoPill.textContent = "Manual";
-        geoSceneIdx = i; renderGeo(true);
+        geoSceneIdx = i;
+        renderGeo(true);
       });
       geoSceneChips.appendChild(b);
     });
     geoModChips.querySelectorAll(".chip").forEach((b) => {
-      b.addEventListener("click", () => { geoPaused = true; geoMod = b.dataset.mod; renderGeo(false); });
+      b.addEventListener("click", () => { geoMod = b.dataset.mod; renderGeo(false); });
     });
     geoLeftChips.querySelectorAll(".chip").forEach((b) => {
-      b.addEventListener("click", () => { geoPaused = true; geoLeftMode = b.dataset.left; renderGeo(false); });
-    });
-    geoCard?.addEventListener("mouseenter", () => (geoPaused = true));
-    geoCard?.addEventListener("mouseleave", () => (geoPaused = false));
-    pc3dCard?.addEventListener("mouseenter", () => (geoPaused = true));
-    pc3dCard?.addEventListener("mouseleave", () => (geoPaused = false));
-    pcStage?.addEventListener("pointerdown", () => {
-      geoPaused = true;
-      if (geoAutoPill) geoAutoPill.textContent = "Manual";
+      b.addEventListener("click", () => { geoLeftMode = b.dataset.left; renderGeo(false); });
     });
     renderGeo(true);
-
-    // Auto-cycle 6 geometry scenes + modalities + gentle divider sweep so visitors see depth, normals & fields proactively
-    const GEO_MODS = ["depth", "normals", "field"];
-    let geoTick = 0;
-    setInterval(() => {
-      if (!geoPaused && !geoCmp?.matches(".dragging, :focus-within")) {
-        geoTick += 1;
-        geoSceneIdx = (geoSceneIdx + 1) % GEO_SCENES.length;
-        if (geoSceneIdx === 0) {
-          const curModPos = GEO_MODS.indexOf(geoMod);
-          geoMod = GEO_MODS[(curModPos + 1) % GEO_MODS.length];
-        }
-        renderGeo(true);
-        if (geoCmp && !geoCmp.classList.contains("touched") && geoCmp._setPos) {
-          geoCmp.classList.add("auto-sweep");
-          sweepRight = !sweepRight;
-          geoCmp._setPos(sweepRight ? 0.64 : 0.36);
-        }
-      }
-    }, 5000);
   }
 
-  // ---------- 8. Spatial Reasoning 4-Benchmark Auto-Carousel Gallery (Transparent Dark-Native Cards) ----------
-  const SR_ORDER = ["cvbench", "blink", "mmsi", "vsi"];
+  // ---------- 8. Spatial Reasoning Gallery ----------
   const SR_VIEWS = {
     cvbench: {
       bench: "CV-Bench",
@@ -1234,13 +1170,7 @@
   };
   const srGallery = document.getElementById("sr-gallery");
   const srCap = document.getElementById("sr-cap");
-  const srCard = document.getElementById("sr-card");
-  const srAutoPill = document.getElementById("sr-auto-pill");
   const srChips = [...document.querySelectorAll("#sr-chips .chip")];
-  let srIdx = 0;
-  let srCaseIdx = 0;
-  let srPaused = false;
-  let srVisible = false;
   let srRunId = 0;
   let srTimers = [];
 
@@ -1264,13 +1194,12 @@
     step();
   }
 
-  function renderSrChat(key, caseIdx) {
+  function renderSrChat(key, caseIdx = 0) {
     clearSrTimers();
     const runId = ++srRunId;
     const v = SR_VIEWS[key];
     if (!v || !srGallery) return;
     if (caseIdx >= v.items.length) caseIdx = 0;
-    srCaseIdx = caseIdx;
     const it = v.items[caseIdx];
 
     srChips.forEach((b) => b.classList.toggle("on", b.dataset.sr === key));
@@ -1335,11 +1264,7 @@
       </div>`;
 
     srGallery.querySelectorAll(".sr-case-btn").forEach((btn) => {
-      btn.addEventListener("click", () => {
-        srPaused = true;
-        if (srAutoPill) srAutoPill.textContent = "Manual";
-        renderSrChat(key, Number(btn.dataset.ci));
-      });
+      btn.addEventListener("click", () => renderSrChat(key, Number(btn.dataset.ci)));
     });
 
     const qEl = document.getElementById("sr-q-type");
@@ -1360,57 +1285,14 @@
         if (botEl) botEl.style.display = "block";
         typeText(aEl, botSummary, 22, runId, () => {
           if (pillsEl) pillsEl.style.display = "flex";
-          srTimers.push(setTimeout(() => {
-            if (runId !== srRunId || srPaused || !srVisible) return;
-            if (srCaseIdx + 1 < v.items.length) {
-              renderSrChat(key, srCaseIdx + 1);
-            } else {
-              srIdx = (srIdx + 1) % SR_ORDER.length;
-              renderSrChat(SR_ORDER[srIdx], 0);
-            }
-          }, 2600));
         });
       }, 650));
     });
   }
 
-  function setSr(key, caseIdx = 0) {
-    renderSrChat(key, caseIdx);
-  }
-  if (srGallery) {
-    setSr("cvbench", 0);
-    new IntersectionObserver((entries) => {
-      const was = srVisible;
-      srVisible = entries.some((e) => e.isIntersecting);
-      if (srVisible && !was && !srPaused) {
-        renderSrChat(SR_ORDER[srIdx], srCaseIdx);
-      }
-    }, { threshold: 0.2 }).observe(srGallery);
-  }
-  srChips.forEach((btn, idx) => {
-    btn.addEventListener("click", () => {
-      srPaused = true;
-      if (srAutoPill) srAutoPill.innerHTML = "Manual";
-      srIdx = idx;
-      setSr(btn.dataset.sr, 0);
-    });
-  });
-  srCard?.addEventListener("mouseenter", () => (srPaused = true));
-  srCard?.addEventListener("mouseleave", () => {
-    if (srAutoPill && srAutoPill.textContent === "Manual") return;
-    srPaused = false;
-    if (srVisible) {
-      srTimers.push(setTimeout(() => {
-        if (!srPaused && srVisible) {
-          if (srCaseIdx + 1 < SR_VIEWS[SR_ORDER[srIdx]].items.length) {
-            renderSrChat(SR_ORDER[srIdx], srCaseIdx + 1);
-          } else {
-            srIdx = (srIdx + 1) % SR_ORDER.length;
-            renderSrChat(SR_ORDER[srIdx], 0);
-          }
-        }
-      }, 1500));
-    }
+  if (srGallery) renderSrChat("cvbench");
+  srChips.forEach((btn) => {
+    btn.addEventListener("click", () => renderSrChat(btn.dataset.sr));
   });
 
   // ---------- 9. EponaX-inspired Interactive Trajectory & Video Explorer ----------
@@ -1636,50 +1518,20 @@
   }
 
   if (expChips && explorerList.length) {
-    let expIdx = 0;
-    let expManual = false;
-    let expHovered = false;
-    let expVisible = false;
-    explorerList.forEach((d, i) => {
+    explorerList.forEach((d) => {
       const b = document.createElement("button");
       b.className = "chip";
       b.dataset.key = d.key;
       b.textContent = d.title.split(" · ")[0];
-      b.addEventListener("click", () => {
-        expManual = true;
-        expVid.loop = true;
-        expIdx = i;
-        selectExplorer(d, true);
-      });
+      b.addEventListener("click", () => selectExplorer(d, true));
       expChips.appendChild(b);
     });
-    expVid.loop = false;
     expVid.addEventListener("timeupdate", updateExplorerTelemetry);
-    expVid.addEventListener("ended", () => {
-      if (expManual) {
-        expVid.currentTime = 0;
-        expVid.play().catch(() => {});
-        return;
-      }
-      if (expHovered || !expVisible) {
-        expVid.currentTime = 0;
-        if (expVisible) expVid.play().catch(() => {});
-        return;
-      }
-      expIdx = (expIdx + 1) % explorerList.length;
-      selectExplorer(explorerList[expIdx], true);
-    });
     window.addEventListener("resize", () => updateExplorerTelemetry());
     selectExplorer(explorerList[0], false);
-    const expSection = document.querySelector(".explorer-grid");
-    expSection?.addEventListener("mouseenter", () => (expHovered = true));
-    expSection?.addEventListener("mouseleave", () => (expHovered = false));
-    expChips.addEventListener("mouseenter", () => (expHovered = true));
-    expChips.addEventListener("mouseleave", () => (expHovered = false));
     new IntersectionObserver(
       (entries) => {
-        expVisible = entries.some((e) => e.isIntersecting);
-        if (expVisible) {
+        if (entries.some((e) => e.isIntersecting)) {
           expVid.play().catch(() => {});
         } else {
           expVid.pause();
@@ -1708,7 +1560,6 @@
   ];
   const discChips = document.getElementById("disc-chips");
   const discQChips = document.getElementById("disc-qchips");
-  const discAutoPill = document.getElementById("disc-auto-pill");
   const discInput = document.getElementById("disc-input");
   const discTarget = document.getElementById("disc-target");
   const discFrozen = document.getElementById("disc-frozen");
@@ -1717,7 +1568,6 @@
   const discNote = document.getElementById("disc-note");
   let discSceneIdx = 0;
   let discQueryIdx = 0;
-  let discPaused = false;
 
   function renderDiscFrame() {
     const sc = DISCRETE_SCENES[discSceneIdx];
@@ -1730,8 +1580,6 @@
         discQChips.innerHTML = sc.queries.map((qq, qi) => `<button class="chip ${qi === discQueryIdx ? "on" : ""}" data-qi="${qi}">${qq.qLabel}</button>`).join("");
         discQChips.querySelectorAll(".chip").forEach((qb) => {
           qb.addEventListener("click", () => {
-            discPaused = true;
-            if (discAutoPill) discAutoPill.textContent = "Manual";
             discQueryIdx = Number(qb.dataset.qi);
             renderDiscFrame();
           });
@@ -1757,8 +1605,6 @@
       b.className = "chip" + (i === 0 ? " on" : "");
       b.textContent = sc.label;
       b.addEventListener("click", () => {
-        discPaused = sc.queries.length === 1;
-        if (discAutoPill) discAutoPill.innerHTML = sc.queries.length > 1 ? '<span class="adot"></span>Jumping Queries' : 'Manual';
         discSceneIdx = i;
         discQueryIdx = 0;
         renderDiscFrame();
@@ -1766,20 +1612,6 @@
       discChips.appendChild(b);
     });
     renderDiscFrame();
-    const dCard = discChips.closest(".card");
-    dCard?.addEventListener("mouseenter", () => (discPaused = true));
-    dCard?.addEventListener("mouseleave", () => (discPaused = false));
-    setInterval(() => {
-      if (discPaused) return;
-      const sc = DISCRETE_SCENES[discSceneIdx];
-      if (discQueryIdx + 1 < sc.queries.length) {
-        discQueryIdx += 1;
-      } else {
-        discSceneIdx = (discSceneIdx + 1) % DISCRETE_SCENES.length;
-        discQueryIdx = 0;
-      }
-      renderDiscFrame();
-    }, 2400);
   }
 
   // ---------- 12. Fixed-Time Bullet-Time Video Showcase (4 clips) ----------
@@ -1812,7 +1644,6 @@
   const frzChips = document.getElementById("frz-chips");
   const frzVid = document.getElementById("frz-vid");
   const frzBadge = document.getElementById("frz-badge");
-  const frzAutoPill = document.getElementById("frz-auto-pill");
   function selectFrz(idx, autoPlay = true) {
     const c = FREEZE_CASES[idx];
     frzChips.querySelectorAll(".chip").forEach((b, i) => b.classList.toggle("on", i === idx));
@@ -1825,46 +1656,17 @@
     if (frzBadge) frzBadge.textContent = c.badge;
   }
   if (frzChips && frzVid) {
-    let frzIdx = 0;
-    let frzManual = false;
-    let frzHovered = false;
-    let frzVisible = false;
     FREEZE_CASES.forEach((c, i) => {
       const b = document.createElement("button");
       b.className = "chip" + (i === 0 ? " on" : "");
       b.textContent = c.label;
-      b.addEventListener("click", () => {
-        frzManual = true;
-        frzVid.loop = true;
-        if (frzAutoPill) frzAutoPill.textContent = "Manual";
-        frzIdx = i;
-        selectFrz(i, true);
-      });
+      b.addEventListener("click", () => selectFrz(i, true));
       frzChips.appendChild(b);
     });
-    frzVid.loop = false;
-    frzVid.addEventListener("ended", () => {
-      if (frzManual) {
-        frzVid.currentTime = 0;
-        frzVid.play().catch(() => {});
-        return;
-      }
-      if (frzHovered || !frzVisible) {
-        frzVid.currentTime = 0;
-        if (frzVisible) frzVid.play().catch(() => {});
-        return;
-      }
-      frzIdx = (frzIdx + 1) % FREEZE_CASES.length;
-      selectFrz(frzIdx, true);
-    });
     selectFrz(0, false);
-    const fCard = frzChips.closest(".card");
-    fCard?.addEventListener("mouseenter", () => (frzHovered = true));
-    fCard?.addEventListener("mouseleave", () => (frzHovered = false));
     new IntersectionObserver(
       (entries) => {
-        frzVisible = entries.some((e) => e.isIntersecting);
-        if (frzVisible) {
+        if (entries.some((e) => e.isIntersecting)) {
           frzVid.play().catch(() => {});
         } else {
           frzVid.pause();
@@ -1926,37 +1728,15 @@
     galGrid.querySelectorAll("video").forEach((v) => vidObs.observe(v));
 
     const galFilterBtns = [...document.querySelectorAll("#gal-filters .chip")];
-    let galIdx = 0;
-    let galPaused = false;
-    let galVisible = false;
-    function applyGalFilter(idx) {
-      const btn = galFilterBtns[idx];
-      if (!btn) return;
-      galFilterBtns.forEach((b, i) => b.classList.toggle("on", i === idx));
-      const f = btn.dataset.filter;
-      galGrid.querySelectorAll(".gcard").forEach((c) => {
-        c.classList.toggle("hide", f !== "all" && c.dataset.group !== f);
-      });
-    }
-    galFilterBtns.forEach((btn, i) => {
+    galFilterBtns.forEach((btn) => {
       btn.addEventListener("click", () => {
-        galPaused = true;
-        galIdx = i;
-        applyGalFilter(i);
+        galFilterBtns.forEach((b) => b.classList.toggle("on", b === btn));
+        const filter = btn.dataset.filter;
+        galGrid.querySelectorAll(".gcard").forEach((card) => {
+          card.classList.toggle("hide", filter !== "all" && card.dataset.group !== filter);
+        });
       });
     });
-    galGrid.addEventListener("mouseenter", () => (galPaused = true));
-    galGrid.addEventListener("mouseleave", () => (galPaused = false));
-    new IntersectionObserver(
-      (entries) => { galVisible = entries.some((e) => e.isIntersecting); },
-      { threshold: 0.15 }
-    ).observe(galGrid);
-    setInterval(() => {
-      if (!galPaused && galVisible && galFilterBtns.length) {
-        galIdx = (galIdx + 1) % galFilterBtns.length;
-        applyGalFilter(galIdx);
-      }
-    }, 10000);
 
     document.getElementById("modal-close")?.addEventListener("click", () => {
       modalVid.pause();
@@ -1974,7 +1754,6 @@
   const teaserExp = document.getElementById("teaser-explorer");
   const teaserFlowWrap = document.getElementById("teaser-flow-wrap");
   const teaserWiresSvg = document.getElementById("teaser-wires-svg");
-  const teaserAutoPill = document.getElementById("teaser-auto-pill");
   const teaserStageDot = document.getElementById("teaser-stage-dot");
   const teaserStageTitle = document.getElementById("teaser-stage-title");
   const teaserStageMetric = document.getElementById("teaser-stage-metric");
@@ -2041,10 +1820,6 @@
       desc: "<b>World Simulation (79.0 Qual · 7.98 WMB):</b> Decoupled camera &amp; time queries power 24 fps 6-DoF rollouts, discrete space jumps, and bullet-time exploration."
     }
   };
-  const TEASER_ORDER = ["cam", "geo", "qa", "sim"];
-  let teaserIdx = 0;
-  let teaserPaused = false;
-  let teaserManual = false;
   let teaserVisible = false;
   let teaserActiveKey = "cam";
 
@@ -2163,16 +1938,6 @@
   if (teaserExp) {
     setTeaserBranch("cam");
     if (teaserStageVid) {
-      teaserStageVid.loop = false;
-      teaserStageVid.addEventListener("ended", () => {
-        if (teaserPaused || teaserManual || !teaserVisible) {
-          teaserStageVid.currentTime = 0;
-          if (teaserVisible) teaserStageVid.play().catch(() => {});
-          return;
-        }
-        teaserIdx = (teaserIdx + 1) % TEASER_ORDER.length;
-        setTeaserBranch(TEASER_ORDER[teaserIdx]);
-      });
       new IntersectionObserver((entries) => {
         teaserVisible = entries.some((e) => e.isIntersecting);
         if (teaserVisible) teaserStageVid.play().catch(() => {});
@@ -2180,70 +1945,22 @@
       }, { threshold: 0.25 }).observe(teaserStageVid);
     }
     teaserExp.querySelectorAll(".t-branch").forEach((el) => {
-      const k = el.dataset.branch;
-      el.addEventListener("mouseenter", () => {
-        teaserPaused = true;
-        if (teaserAutoPill) teaserAutoPill.textContent = "Interactive";
-        teaserIdx = TEASER_ORDER.indexOf(k);
-        setTeaserBranch(k);
-        if (teaserVisible && teaserStageVid) teaserStageVid.play().catch(() => {});
-      });
-      el.addEventListener("click", () => {
-        teaserManual = true;
-        teaserPaused = true;
-        if (teaserAutoPill) teaserAutoPill.textContent = "Selected";
-        teaserIdx = TEASER_ORDER.indexOf(k);
-        setTeaserBranch(k);
-        if (teaserStageVid) teaserStageVid.play().catch(() => {});
-      });
-    });
-    teaserExp.addEventListener("mouseleave", () => {
-      if (!teaserManual) {
-        teaserPaused = false;
-        if (teaserAutoPill) teaserAutoPill.innerHTML = '<span class="adot"></span>Auto-Cycling';
-      }
+      el.addEventListener("click", () => setTeaserBranch(el.dataset.branch));
     });
     window.addEventListener("resize", () => drawTeaserWires(teaserActiveKey));
   }
 
-  // ---------- 14. Benchmark Tabs (with Auto-Cycling) ----------
+  // ---------- 14. Benchmark Tabs ----------
   const benchTabs = [...document.querySelectorAll("#bench-tabs .chip")];
   const benchPanels = document.querySelectorAll("[data-bench-panel]");
-  const benchAutoPill = document.getElementById("bench-auto-pill");
-  let benchIdx = 0;
-  let benchPaused = false;
-  function selectBench(idx) {
-    const t = benchTabs[idx];
-    if (!t) return;
-    benchTabs.forEach((b, i) => b.classList.toggle("on", i === idx));
-    const key = t.dataset.bench;
-    benchPanels.forEach((p) => {
-      const show = p.dataset.benchPanel === key;
-      p.style.display = show ? "" : "none";
-      if (show) {
-        p.querySelectorAll("[data-bars]").forEach(animateBars);
-      }
-    });
-  }
-  benchTabs.forEach((t, i) => {
-    t.addEventListener("click", () => {
-      benchPaused = true;
-      if (benchAutoPill) benchAutoPill.textContent = "Manual";
-      benchIdx = i;
-      selectBench(i);
+  benchTabs.forEach((tab) => {
+    tab.addEventListener("click", () => {
+      benchTabs.forEach((b) => b.classList.toggle("on", b === tab));
+      benchPanels.forEach((panel) => {
+        panel.style.display = panel.dataset.benchPanel === tab.dataset.bench ? "" : "none";
+      });
     });
   });
-  const benchSec = document.getElementById("benchmarks");
-  benchSec?.addEventListener("mouseenter", () => (benchPaused = true));
-  benchSec?.addEventListener("mouseleave", () => (benchPaused = false));
-  if (benchTabs.length) {
-    setInterval(() => {
-      if (!benchPaused) {
-        benchIdx = (benchIdx + 1) % benchTabs.length;
-        selectBench(benchIdx);
-      }
-    }, 5500);
-  }
 
   // ---------- 15. Copy BibTeX ----------
   const copyBtn = document.getElementById("copy-bib");
@@ -2268,8 +1985,7 @@
     document.querySelectorAll("[data-vbars]").forEach(animateVBars);
     animateCountups(document);
   }
-  if (traceRoute && archChoiceBtns.length) {
-    lockedArchRoute = traceRoute;
+  if (archChoiceBtns.some((btn) => btn.dataset.route === traceRoute)) {
     archAllBtn?.classList.remove("on");
     archChoiceBtns.forEach((b) => b.classList.toggle("on", b.dataset.route === traceRoute));
     applyArchState({ route: traceRoute });

@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,500&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="static/css/style.css?v=29">
+<link rel="stylesheet" href="static/css/style.css?v=30">
 </head>
 <body>
 
@@ -102,10 +102,7 @@
         <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
           <span class="teaser-ours-pill">OURS</span>
           <span class="teaser-bar-ttl">One model, four capabilities</span>
-          <span class="teaser-bar-sub">Hover any branch on the left to activate its path &amp; live visualization on the right</span>
-        </div>
-        <div class="chips" style="margin:0">
-          <span class="auto-pill" id="teaser-auto-pill"><span class="adot"></span>Auto-Cycling</span>
+          <span class="teaser-bar-sub">Select a branch to see its path and video</span>
         </div>
       </div>
 
@@ -198,7 +195,7 @@
             <a class="teaser-jump" id="teaser-jump" href="#camera">Inspect Pillar ↓</a>
           </div>
           <div class="teaser-stage-imgwrap">
-            <video id="teaser-stage-vid" muted playsinline preload="metadata" poster="static/video/pillars/cam.jpg" src="static/video/pillars/cam.mp4"></video>
+            <video id="teaser-stage-vid" muted loop playsinline preload="metadata" poster="static/video/pillars/cam.jpg" src="static/video/pillars/cam.mp4"></video>
           </div>
           <div class="teaser-foot-txt" id="teaser-foot-txt">
             <b>Camera Perception (31/36 #1):</b> Estimates camera <i>roll, pitch, vFoV</i> alongside dense perspective fields <i>F</i> with closed-loop residual feedback (−41.9% error).
@@ -229,11 +226,11 @@
   <div class="wrap">
     <div class="eyebrow">Animated Model Architecture</div>
     <h2 class="title">How geometry, language, and generation reinforce each other</h2>
-    <p class="lead">Hover over the diagram to preview a capability, or select a capability to keep its modules and signal paths highlighted.</p>
+    <p class="lead">Select a capability on the diagram or below to highlight its modules and signal paths.</p>
 
     <div class="pipeline-explorer reveal">
       <div class="pipeline-stage-bar">
-        <span style="font:600 12px/1 var(--mono);letter-spacing:.7px;color:var(--ink-faint);text-transform:uppercase">Interactive Architecture · Hover Modules or Select Capability</span>
+        <span style="font:600 12px/1 var(--mono);letter-spacing:.7px;color:var(--ink-faint);text-transform:uppercase">Interactive Architecture</span>
         <div class="chips" style="margin:0">
           <button class="chip on" id="arch-all-btn" data-route="all">All Signal Flows</button>
           <button class="chip" id="arch-play-btn">Pause Pulse</button>
@@ -392,7 +389,7 @@
 
       <div class="arch-inspector" id="arch-inspector">
         <div>
-          <div class="ttl" id="insp-title">Unified Spatial Architecture — Hover or Select Any Capability</div>
+          <div class="ttl" id="insp-title">Unified Spatial Architecture</div>
           <p class="desc" id="insp-desc">Qwen3-VL encodes context and feeds layer-50 states into SolarWM-H3 DiT, whose RGB and geometry heads (F, ρ, N) loop back via CoGT.</p>
         </div>
         <div class="meta" id="insp-meta">Qwen3-VL ↔ SolarWM-H3 DiT ↔ CoGT</div>
@@ -406,7 +403,7 @@
   <div class="wrap">
     <div class="eyebrow">Training Curriculum &amp; Data</div>
     <h2 class="title">Six-stage training across 18 datasets (132.0M samples &amp; frames)</h2>
-    <p class="lead">Hover any stage to trace dependencies and filter its datasets (zero-shot NYUv2 excluded).</p>
+    <p class="lead">Select a stage to trace its dependencies and filter its datasets (zero-shot NYUv2 excluded).</p>
 
     <div class="train-shell reveal">
       <div class="train-flow-wrap">
@@ -429,7 +426,7 @@
 
       <div class="train-corpus-head">
         <span>18 Training Datasets · 132.0M Total Samples &amp; Frames</span>
-        <span id="train-stage-badge">Hover or click any stage to isolate its corpus</span>
+        <span id="train-stage-badge">Select a stage to isolate its corpus</span>
       </div>
       <div class="corpus-grid" id="corpus-grid"></div>
     </div>
@@ -456,10 +453,7 @@
       </div>
 
       <div class="card pad">
-        <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap">
-          <h3 style="margin:0">Closed-Loop Target Pose Feedback (&eta; = 0.85)</h3>
-          <span class="auto-pill" id="fb-auto-pill"><span class="adot"></span>Auto-Cycling</span>
-        </div>
+        <h3 style="margin:0">Closed-Loop Target Pose Feedback (&eta; = 0.85)</h3>
         <div class="chips" id="fb-chips" style="margin-top:10px"></div>
         <div class="cmp" id="fb-cmp">
           <img id="fb-iter1" src="static/img/feedback/fb_r0_iter1.jpg" alt="Iter 1 open-loop" draggable="false">
@@ -530,10 +524,7 @@
 
     <div class="grid2 geo-split reveal">
       <div class="card pad" id="geo-card">
-        <div style="display:flex;justify-content:space-between;align-items:center;gap:8px">
-          <h3 style="margin:0;white-space:nowrap">Dense Map Showcase</h3>
-          <span class="auto-pill" id="geo-auto-pill" style="white-space:nowrap"><span class="adot"></span>Auto-Cycling</span>
-        </div>
+        <h3 style="margin:0;white-space:nowrap">Dense Map Showcase</h3>
         <div class="chiprow" style="margin-top:8px">
           <span class="lbl">Scene</span>
           <div class="chips" id="geo-scene-chips"></div>
@@ -604,10 +595,7 @@
 
     <div class="card pad reveal" id="sr-card" style="margin-bottom:22px">
       <div style="display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:12px;margin-bottom:12px">
-        <div style="display:flex;align-items:center;gap:10px">
-          <h3 style="margin:0">Qualitative Spatial QA Gallery (16 Cases)</h3>
-          <span class="auto-pill" id="sr-auto-pill"><span class="adot"></span>Auto-Cycling</span>
-        </div>
+        <h3 style="margin:0">Qualitative Spatial QA Gallery (16 Cases)</h3>
         <div class="chips" id="sr-chips" style="margin:0">
           <button class="chip on" data-sr="cvbench">CV-Bench (87.4%)</button>
           <button class="chip" data-sr="blink">BLINK (50.08%)</button>
@@ -675,7 +663,7 @@
 
     <div class="explorer-grid reveal">
       <div class="explorer-vid-box">
-        <video id="exp-vid" controls muted playsinline preload="metadata"></video>
+        <video id="exp-vid" controls muted loop playsinline preload="metadata"></video>
         <div class="explorer-overlay">
           <span class="pill-tag" id="exp-title">Loading…</span>
           <span class="pill-tag accent" id="exp-mode-badge">6-DoF Rollout</span>
@@ -720,7 +708,6 @@
       <div class="card pad">
         <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:8px">
           <span class="pill-tag">JEPA PREDICTIVE STATE Z</span>
-          <span class="auto-pill" id="disc-auto-pill"><span class="adot"></span>Jump-Frame Cycling</span>
         </div>
         <h3>Discrete Space Jumps (8 Cases)</h3>
         <div class="chips" id="disc-chips" style="margin-top:10px"></div>
@@ -757,7 +744,7 @@
         <p class="small" style="color:var(--ink-soft);margin:4px 0 10px">Freezing dynamic scene motion at <i>t*</i> while sweeping novel 3D viewpoints (<b>20.42 dB PSNR</b>, <b>0.934</b> static consistency across 128 clips).</p>
         <div class="chips" id="frz-chips"></div>
         <div class="frz-vid-box">
-          <video id="frz-vid" controls muted playsinline preload="metadata" poster="static/video/bullet_time/01_bookfall_orbit.jpg" src="static/video/bullet_time/01_bookfall_orbit.mp4"></video>
+          <video id="frz-vid" controls muted loop playsinline preload="metadata" poster="static/video/bullet_time/01_bookfall_orbit.jpg" src="static/video/bullet_time/01_bookfall_orbit.mp4"></video>
           <span class="j-badge jepa" id="frz-badge">Bookfall · Orbit (t* Frozen)</span>
         </div>
       </div>
@@ -789,7 +776,6 @@
       <button class="chip" data-bench="geo" style="border-color:var(--p2-bd)">3D Geometry</button>
       <button class="chip" data-bench="qa"  style="border-color:var(--p3-bd)">Spatial Reasoning</button>
       <button class="chip" data-bench="sim" style="border-color:var(--p4-bd)">World Simulation</button>
-      <span class="auto-pill" id="bench-auto-pill" style="margin-left:auto"><span class="adot"></span>Auto-Cycling</span>
     </div>
 
     <!-- Pillar 1: Camera Perception Panel -->
@@ -902,6 +888,6 @@
 <script src="static/js/vendor/three.min.js"></script>
 <script src="static/js/vendor/OrbitControls.js"></script>
 <script src="static/js/demo_data.js?v=3"></script>
-<script src="static/js/main.js?v=27"></script>
+<script src="static/js/main.js?v=28"></script>
 </body>
 </html>
