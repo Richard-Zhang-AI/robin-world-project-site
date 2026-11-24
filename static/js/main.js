@@ -195,37 +195,56 @@
 
   // ---------- 4. Generic drag comparison slider (+ gentle auto-sweep helper) ----------
   function initCmp(el) {
-    if (!el) return;
-    const top = el.querySelector(".top");
-    const bar = el.querySelector(".bar");
     const knob = el.querySelector(".knob");
+    const min = 0.02;
+    const max = 0.98;
     let pos = 0.52;
     const set = (p) => {
-      pos = Math.max(0.02, Math.min(0.98, p));
+      pos = Math.max(min, Math.min(max, p));
       const pct = (pos * 100).toFixed(2);
-      top.style.clipPath = `inset(0 0 0 ${pct}%)`;
-      bar.style.left = `${pct}%`;
-      knob.style.left = `${pct}%`;
+      el.style.setProperty("--cmp-pos", `${pct}%`);
+      knob.setAttribute("aria-valuenow", pct);
     };
     el._setPos = set;
-    set(0.52);
-    let dragging = false;
-    const move = (clientX) => {
+    let activePointer = null;
+    const setManual = (p) => {
       el.classList.remove("auto-sweep");
-      const rect = el.getBoundingClientRect();
-      set((clientX - rect.left) / rect.width);
       el.classList.add("touched");
+      set(p);
+    };
+    const move = (clientX) => {
+      const rect = el.getBoundingClientRect();
+      setManual((clientX - rect.left - el.clientLeft) / el.clientWidth);
     };
     el.addEventListener("pointerdown", (e) => {
-      dragging = true;
+      if (activePointer !== null || !e.isPrimary || e.button !== 0) return;
+      e.preventDefault();
+      activePointer = e.pointerId;
       el.setPointerCapture(e.pointerId);
+      el.classList.add("dragging");
       move(e.clientX);
     });
     el.addEventListener("pointermove", (e) => {
-      if (dragging) move(e.clientX);
+      if (activePointer === e.pointerId) move(e.clientX);
     });
-    el.addEventListener("pointerup", () => (dragging = false));
-    el.addEventListener("pointercancel", () => (dragging = false));
+    el.addEventListener("lostpointercapture", (e) => {
+      if (activePointer !== e.pointerId) return;
+      activePointer = null;
+      el.classList.remove("dragging");
+    });
+    knob.addEventListener("keydown", (e) => {
+      const step = 0.02;
+      switch (e.key) {
+        case "ArrowLeft":
+        case "ArrowDown": setManual(pos - step); break;
+        case "ArrowRight":
+        case "ArrowUp": setManual(pos + step); break;
+        case "Home": setManual(min); break;
+        case "End": setManual(max); break;
+        default: return;
+      }
+      e.preventDefault();
+    });
   }
   document.querySelectorAll(".cmp").forEach(initCmp);
 
@@ -668,10 +687,11 @@
     });
     setFb(0);
     const fbCard = fbChips.closest(".card");
+    const fbCmp = document.getElementById("fb-cmp");
     fbCard?.addEventListener("mouseenter", () => (fbPaused = true));
     fbCard?.addEventListener("mouseleave", () => (fbPaused = false));
     setInterval(() => {
-      if (!fbPaused) {
+      if (!fbPaused && !fbCmp?.matches(".dragging, :focus-within")) {
         fbIdx = (fbIdx + 1) % FB_CASES.length;
         setFb(fbIdx);
       }
@@ -1076,7 +1096,7 @@
     const GEO_MODS = ["depth", "normals", "field"];
     let geoTick = 0;
     setInterval(() => {
-      if (!geoPaused) {
+      if (!geoPaused && !geoCmp?.matches(".dragging, :focus-within")) {
         geoTick += 1;
         geoSceneIdx = (geoSceneIdx + 1) % GEO_SCENES.length;
         if (geoSceneIdx === 0) {
